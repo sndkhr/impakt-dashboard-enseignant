@@ -40,22 +40,7 @@ function matchGenderFilter(situation: string | undefined, genders: string[]): bo
   });
 }
 
-// Formatter la situation pour affichage
-function formatSituation(situation?: string): string {
-  if (!situation) return '—';
-  const map: Record<string, string> = {
-    'lyceen': 'lycéen',
-    'lycéen': 'lycéen',
-    'etudiant': 'étudiant',
-    'étudiant': 'étudiant',
-    'actif': 'actif',
-    'sans_emploi': 'sans_emploi',
-    'demandeur_emploi': 'demandeur_emploi',
-    'alternant': 'alternant',
-    'stagiaire': 'stagiaire',
-  };
-  return map[situation.toLowerCase()] || situation;
-}
+
 
 // Formatter la date d'activité avec heure (comme l'admin)
 function formatActivite(dateStr?: string | null): string {
@@ -234,20 +219,18 @@ export default function SuiviPage() {
                 <th onClick={() => handleSort('name')} style={thStyle}>Nom{sortArrow('name')}</th>
                 <th onClick={() => handleSort('prenom')} style={thStyle}>Prénom{sortArrow('prenom')}</th>
                 <th onClick={() => handleSort('age')} style={{ ...thStyle, textAlign: 'center' }}>Âge{sortArrow('age')}</th>
-                <th onClick={() => handleSort('situation')} style={thStyle}>Situation{sortArrow('situation')}</th>
                 <th style={thStyle}>Niveau</th>
                 <th onClick={() => handleSort('date')} style={thStyle}>Inscription{sortArrow('date')}</th>
                 <th onClick={() => handleSort('activite')} style={thStyle}>Activité{sortArrow('activite')}</th>
                 <th onClick={() => handleSort('prog')} style={thStyle}>Progrès{sortArrow('prog')}</th>
                 <th onClick={() => handleSort('alert')} style={thStyle}>Statut{sortArrow('alert')}</th>
-                <th style={thStyle}>Ville</th>
                 <th style={{ ...thStyle, cursor: 'default' }}></th>
               </tr>
             </thead>
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ padding: 40, textAlign: 'center', color: 'var(--text-400)', fontSize: 13 }}>
+                  <td colSpan={9} style={{ padding: 40, textAlign: 'center', color: 'var(--text-400)', fontSize: 13 }}>
                     Aucun élève ne correspond aux filtres sélectionnés
                   </td>
                 </tr>
@@ -261,13 +244,11 @@ export default function SuiviPage() {
                     <td style={{ ...tdStyle, fontWeight: 600, color: 'var(--text-900)' }}>{u.nom || '—'}</td>
                     <td style={tdStyle}>{u.prenom || '—'}</td>
                     <td style={{ ...tdStyle, textAlign: 'center' }}>{u.age || '—'}</td>
-                    <td style={tdStyle}>{formatSituation(u.situation)}</td>
                     <td style={tdStyle}>{formatNiveauAdmin(u.niveauEtudes, u.classe)}</td>
                     <td style={tdStyle}>{u.dateStr}</td>
                     <td style={{ ...tdStyle, fontSize: 11, color: 'var(--text-400)' }}>{formatActivite(u.lastActive)}</td>
                     <td style={tdStyle}><ProgressBar value={u.prog} /></td>
                     <td style={tdStyle}><Badge label={alertConf.label} className={alertConf.className} /></td>
-                    <td style={tdStyle}>{u.ville || '—'}</td>
                     <td style={tdStyle}>
                       <button onClick={(e) => { e.stopPropagation(); openProfile(u.uid); }}
                         style={{ fontSize: 11, padding: '5px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--white)', fontFamily: 'inherit', fontWeight: 500, color: 'var(--text-700)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
