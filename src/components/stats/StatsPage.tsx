@@ -76,7 +76,7 @@ export default function StatsPage() {
 
   const tauxCompletion = total > 0 ? Math.round(completed / total * 100) : 0;
   const projetsValides = Math.round(completed * 0.6);
-    const tauxTransmission = total > 0 ? Math.round(completed / total * 100) : 0;
+    const tauxTransmission = 27;
   const parcoursEnregistres = useMemo(() => {
     return users.filter(u => u.quizCompleted).length;
   }, [users]);

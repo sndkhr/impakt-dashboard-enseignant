@@ -85,7 +85,7 @@ body {
 /* ===== PROGRESS BAR ===== */
 .progress-wrap { display: flex; align-items: center; gap: 8px; }
 .progress-bar { flex: 1; height: 6px; background: #e5e7eb; border-radius: 4px; overflow: hidden; min-width: 60px; }
-.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--teal), #14b8a6); }
+.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #7f4997, #E84393); }
 .progress-text { font-size: 10px; color: var(--text-400); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
 
 /* ===== LOADING ===== */
