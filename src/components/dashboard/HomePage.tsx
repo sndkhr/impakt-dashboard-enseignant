@@ -130,23 +130,24 @@ export default function HomePage() {
   if (!data) return <div className="ld"><div className="ld-spin" />Chargement...</div>;
 
   // RDV badge count
-  const rdvUsers = sortedTableData.filter((_, i) => i % 4 === 0);
-
+  
   // Upcoming RDV items
-  const upcomingRdv = rdvUsers.slice(0, 4).map((u, i) => {
-    const dt = new Date();
-    dt.setDate(dt.getDate() + i + 1);
-    const ds = dt.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+  const completedUsers = sortedUsers.filter(u => u.quizCompleted).slice(0, 4);
+  const upcomingRdv = completedUsers.map((u, i) => {
+    const d = u.completedAt ? new Date(u.completedAt) : new Date();
+    const ds = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
     return (
-      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: i < 3 ? '1px solid #f5f5f5' : 'none' }}>
-        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e8e9ef', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, fontWeight: 700, color: 'var(--text-500)' }}>
-          {(u.prenom?.[0] || '') + (u.nom?.[0] || '')}
+      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: i < completedUsers.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" style={{ width: 13, height: 13 }}><polyline points="20 6 9 17 4 12" /></svg>
         </div>
         <div>
           <div style={{ fontSize: '11.5px', color: 'var(--text-700)', lineHeight: 1.4 }}>
-            <strong style={{ color: 'var(--text-900)' }}>{u.prenom} {u.nom}</strong> — Échange prévu
+            <strong style={{ color: 'var(--text-900)' }}>{u.prenom} {u.nom}</strong> — Transmis à Avenir(s)
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-400)' }}>{ds} · 10h00</div>
+          <div style={{ fontSize: 10, color: 'var(--text-400)' }}>{ds} à {h}h{m}</div>
         </div>
       </div>
     );
@@ -281,7 +282,7 @@ export default function HomePage() {
           </SideCard>
 
           {/* Upcoming RDV */}
-          <SideCard title="À venir" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <SideCard title="Avenir(s)" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin' }}>
               {upcomingRdv}
             </div>
