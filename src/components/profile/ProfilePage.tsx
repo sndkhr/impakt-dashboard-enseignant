@@ -451,6 +451,7 @@ export default function ProfilePage() {
   // const { openExchange } = useModals();
   const [slidePanel, setSlidePanel] = useState<'none' | 'finalize' | 'finalized' | 'cancelled'>('none');
   const [finalizeConfirmed, setFinalizeConfirmed] = useState(false);
+  const [avenirSent, setAvenirSent] = useState(false);
 
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -470,7 +471,7 @@ export default function ProfilePage() {
   const u = sorted[idx];
 
   useEffect(() => {
-    setSlidePanel('none'); setFinalizeConfirmed(false);
+    setSlidePanel('none'); setFinalizeConfirmed(false); setAvenirSent(false);
     setUserDetail(null); setDetailError(null);
   }, [selectedUserIndex, selectedUserUid]);
 
@@ -527,7 +528,11 @@ export default function ProfilePage() {
 
   const actions = useMemo(() => {
     const a: Array<{ text: React.ReactNode; date: string }> = [];
-    a.push({ text: <><strong>Envoi des données vers Avenir(s)</strong></>, date: '—' });
+    if (avenirSent) {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+      a.push({ text: <><strong>Envoi des données vers Avenir(s)</strong></>, date: dateStr });
+    }
     return a;
   }, [idx, metiers10]);
 
@@ -654,9 +659,9 @@ export default function ProfilePage() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ width: 14, height: 14 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
               PDF
             </button>
-            <button onClick={() => { /* TODO: envoyer top métiers + métiers recherchés à Avenir(s) via API */ }} className="btn-gradient" style={{ padding: '9px 20px', borderRadius: 10, fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: 1, display: 'flex', alignItems: 'center', gap: 6 }} title="Intégration Avenir(s) à venir">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}><path d="M12 19V5" /><polyline points="5 12 12 5 19 12" /></svg>
+            <button onClick={() => { setAvenirSent(true); }} className="btn-gradient" style={{ padding: '9px 20px', borderRadius: 10, fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               Avenir(s)
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}><path d="M5 12h14" /><polyline points="12 5 19 12 12 19" /></svg>
             </button>
           </div>
 
@@ -813,9 +818,9 @@ export default function ProfilePage() {
     </div>
 
     {/* SLIDE PANELS */}
-    <SlidePanel open={slidePanel === 'finalize'} title="Finaliser le parcours" onClose={() => { setSlidePanel('none'); setFinalizeConfirmed(false); }}
+    <SlidePanel open={slidePanel === 'finalize'} title="Finaliser le parcours" onClose={() => { setSlidePanel('none'); setFinalizeConfirmed(false); setAvenirSent(false); }}
       footer={<>
-        <button onClick={() => { setSlidePanel('none'); setFinalizeConfirmed(false); }} style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid var(--border)', background: 'var(--white)', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'var(--text-700)', cursor: 'pointer' }}>Annuler</button>
+        <button onClick={() => { setSlidePanel('none'); setFinalizeConfirmed(false); setAvenirSent(false); }} style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid var(--border)', background: 'var(--white)', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'var(--text-700)', cursor: 'pointer' }}>Annuler</button>
         <button onClick={handleFinalize} disabled={!finalizeConfirmed} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: '#059669', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: '#fff', cursor: finalizeConfirmed ? 'pointer' : 'not-allowed', opacity: finalizeConfirmed ? 1 : 0.5 }}>Finaliser le parcours</button>
       </>}
     >
