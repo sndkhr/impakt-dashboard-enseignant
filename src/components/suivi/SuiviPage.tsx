@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useNav } from '@/lib/navigation';
 import { useModals, isFilterActive } from '@/lib/modals';
-import { User, ALERT_CONFIG, computeAlertLevel, computeParcoursStatus, formatNiveauEtudes, formatDateFr } from '@/types';
+import { User, ALERT_CONFIG, computeAlertLevel, computeParcoursStatus, formatDateFr } from '@/types';
 import { exportBeneficiairesCSV, exportBeneficiairesPDF } from '@/lib/export';
 import Badge from '@/components/ui/Badge';
 import ProgressBar from '@/components/ui/ProgressBar';
@@ -55,17 +55,7 @@ function formatActivite(dateStr?: string | null): string {
   return `${day} ${month}, ${hours}:${minutes}`;
 }
 
-// Niveau affiché comme l'admin (Term, 1ère, 2nde, Bac+3, etc.)
-function formatNiveauAdmin(niveauEtudes?: string, classe?: string): string {
-  if (classe) {
-    const cl = classe.toLowerCase();
-    if (cl.includes('term')) return 'Term';
-    if (cl.includes('1') || cl.includes('prem')) return '1ère';
-    if (cl.includes('2') || cl.includes('sec')) return '2nde';
-    if (cl.includes('3')) return '3ème';
-  }
-  return formatNiveauEtudes(niveauEtudes);
-}
+
 
 export default function SuiviPage() {
   const { data } = useAuth();
@@ -219,7 +209,6 @@ export default function SuiviPage() {
                 <th onClick={() => handleSort('name')} style={thStyle}>Nom{sortArrow('name')}</th>
                 <th onClick={() => handleSort('prenom')} style={thStyle}>Prénom{sortArrow('prenom')}</th>
                 <th onClick={() => handleSort('age')} style={{ ...thStyle, textAlign: 'center' }}>Âge{sortArrow('age')}</th>
-                <th style={thStyle}>Niveau</th>
                 <th onClick={() => handleSort('date')} style={thStyle}>Inscription{sortArrow('date')}</th>
                 <th onClick={() => handleSort('activite')} style={thStyle}>Activité{sortArrow('activite')}</th>
                 <th onClick={() => handleSort('prog')} style={thStyle}>Progrès{sortArrow('prog')}</th>
@@ -230,7 +219,7 @@ export default function SuiviPage() {
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={9} style={{ padding: 40, textAlign: 'center', color: 'var(--text-400)', fontSize: 13 }}>
+                  <td colSpan={8} style={{ padding: 40, textAlign: 'center', color: 'var(--text-400)', fontSize: 13 }}>
                     Aucun élève ne correspond aux filtres sélectionnés
                   </td>
                 </tr>
@@ -244,7 +233,6 @@ export default function SuiviPage() {
                     <td style={{ ...tdStyle, fontWeight: 600, color: 'var(--text-900)' }}>{u.nom || '—'}</td>
                     <td style={tdStyle}>{u.prenom || '—'}</td>
                     <td style={{ ...tdStyle, textAlign: 'center' }}>{u.age || '—'}</td>
-                    <td style={tdStyle}>{formatNiveauAdmin(u.niveauEtudes, u.classe)}</td>
                     <td style={tdStyle}>{u.dateStr}</td>
                     <td style={{ ...tdStyle, fontSize: 11, color: 'var(--text-400)' }}>{formatActivite(u.lastActive)}</td>
                     <td style={tdStyle}><ProgressBar value={u.prog} /></td>
