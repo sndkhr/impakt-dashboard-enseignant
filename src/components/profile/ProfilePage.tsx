@@ -534,7 +534,7 @@ export default function ProfilePage() {
       a.push({ text: <><strong>Envoi des données vers Avenir(s)</strong></>, date: dateStr });
     }
     return a;
-  }, [idx, metiers10]);
+  }, [idx, metiers10, avenirSent]);
 
   const handleFinalize = useCallback(() => { setSlidePanel('finalized'); setFinalizeConfirmed(false); }, []);
 
