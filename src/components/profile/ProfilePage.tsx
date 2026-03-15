@@ -527,8 +527,7 @@ export default function ProfilePage() {
 
   const actions = useMemo(() => {
     const a: Array<{ text: React.ReactNode; date: string }> = [];
-    if (idx % 2 === 0 && metiers10[0]) a.push({ text: <><strong>Métier validé</strong> : {metiers10[0]}</>, date: '28 févr. 2026' });
-    a.push({ text: <strong>Note ajoutée</strong>, date: '15 févr. 2026' });
+    a.push({ text: <><strong>Envoi des données vers Avenir(s)</strong></>, date: '—' });
     return a;
   }, [idx, metiers10]);
 
