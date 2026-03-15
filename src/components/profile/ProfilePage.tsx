@@ -58,7 +58,7 @@ function ValidBtn({ type, defaultOn, loading, onToggle }: {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: isReadOnly ? 'default' : loading ? 'wait' : 'pointer', transition: 'all .2s',
       opacity: (isReadOnly && !on) || loading ? 0.5 : 1,
-    }} title={isLike ? 'Intérêt de l\'élève (non modifiable)' : 'Validation enseignant'}>
+    }} title={isLike ? "Intérêt de l'élève (non modifiable)" : 'Validation enseignant'}>
       {isLike ? (
         <svg viewBox="0 0 24 24" fill={on ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ width: 14, height: 14, color: on ? '#be185d' : 'var(--text-300)' }}>
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -313,7 +313,7 @@ function NotesSection({ idx }: { idx: number }) {
   useEffect(() => { if (showInput && textRef.current) textRef.current.focus(); }, [showInput]);
 
   return (
-    <ProfCard title="Notes de l\'enseignant" titleRight={
+    <ProfCard title="Notes de l'enseignant" titleRight={
       <button onClick={() => setShowInput(true)} style={{ width: 28, height: 28, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--white)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ width: 14, height: 14 }}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
       </button>
@@ -537,7 +537,7 @@ export default function ProfilePage() {
   const handleProfileExport = useCallback((fmt: 'csv' | 'pdf') => {
     if (!u) return;
 
-    // Actions de l\'enseignant
+    // Actions de l'enseignant
     const actionTexts: Array<{ text: string; date: string }> = [];
     if (idx % 2 === 0 && metiers10[0]) actionTexts.push({ text: `Métier validé : ${metiers10[0]}`, date: '28 févr. 2026' });
     actionTexts.push({ text: 'Note ajoutée', date: '15 févr. 2026' });
@@ -737,7 +737,7 @@ export default function ProfilePage() {
               <NotesSection idx={idx} />
             </div>
             <div style={{ breakInside: 'avoid', marginBottom: 14 }}>
-              <ProfCard title="Actions de l\'enseignant">
+              <ProfCard title="Actions de l'enseignant">
               {actions.map((a, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: i < actions.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, marginTop: 5 }} />
