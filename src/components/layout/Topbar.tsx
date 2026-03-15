@@ -5,7 +5,7 @@ import { useNav } from '@/lib/navigation';
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   home: { title: 'Accueil', subtitle: 'Suivez les données en temps réel sur votre tableau de bord.' },
   jeunes: { title: 'Mes élèves', subtitle: 'Liste complète de tous les élèves inscrits.' },
-  alertes: { title: 'Rendez-vous', subtitle: 'Gérez vos prochains rendez-vous.' },
+  alertes: { title: 'Avenir(s)', subtitle: 'Suivez les envois de données vers Avenir(s).' },
   stats: { title: 'Statistiques', subtitle: 'Analyse de votre activité et de vos élèves.' },
   params: { title: 'Réglages', subtitle: 'Gérez votre compte et vos préférences.' },
   aide: { title: 'Aide & support', subtitle: 'FAQ et signalement de problèmes.' },

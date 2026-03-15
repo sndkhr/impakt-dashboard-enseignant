@@ -56,7 +56,7 @@ export default function Sidebar({ rdvBadge }: { rdvBadge?: number }) {
   const mainNav: NavItem[] = [
     { id: 'home', label: 'Accueil', icon: icons.home },
     { id: 'jeunes', label: 'Mes élèves', icon: icons.jeunes },
-    { id: 'alertes', label: 'Rendez-vous', icon: icons.alertes, badge: rdvBadge },
+    { id: 'alertes', label: 'Avenir(s)', icon: icons.alertes, badge: rdvBadge },
     { id: 'stats', label: 'Statistiques', icon: icons.stats },
   ];
 

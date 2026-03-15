@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useNav } from '@/lib/navigation';
-import { useModals } from '@/lib/modals';
 import Badge from '@/components/ui/Badge';
 
 const thStyle: React.CSSProperties = { padding: '12px 16px', fontSize: 11, fontWeight: 600, color: 'var(--text-400)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.3px', borderBottom: '1px solid var(--border)', background: '#fafbfc', whiteSpace: 'nowrap' };
@@ -17,38 +16,34 @@ function Avatar({ initials }: { initials: string }) {
   );
 }
 
-type Tab = 'upcoming' | 'past';
+type Tab = 'envoye' | 'non_envoye';
 
 export default function RdvPage() {
   const { data } = useAuth();
   const { openProfile } = useNav();
-  const { openExchange } = useModals();
-  const [activeTab, setActiveTab] = useState<Tab>('upcoming');
+  const [activeTab, setActiveTab] = useState<Tab>('envoye');
 
   const users = useMemo(() => {
     return [...(data?.recentUsers || [])].sort((a, b) => (a.nom || '').localeCompare(b.nom || ''));
   }, [data]);
 
-  const { upcoming, past } = useMemo(() => {
-    const rdvDates = ['5 mars 2026', '6 mars 2026', '8 mars 2026', '12 mars 2026', '15 mars 2026'];
-    const rdvTimes = ['10h00', '14h30', '9h00', '11h00', '16h00'];
-    const rdvTypes = ['Appel téléphonique', 'RDV en présentiel', 'Appel téléphonique', 'RDV en présentiel', 'Appel téléphonique'];
-    const pastDates = ['18 févr. 2026', '10 févr. 2026', '3 févr. 2026', '25 janv. 2026', '20 janv. 2026'];
-    const up: Array<{ user: typeof users[0]; idx: number; date: string; time: string; type: string; init: string }> = [];
-    const pa: typeof up = [];
-    let rdvCount = 0;
-    users.forEach((u, i) => {
-      if (i % 4 === 0) {
-        const init = ((u.prenom || '?')[0] + (u.nom || '?')[0]).toUpperCase();
-        const entry = { user: u, idx: i, init, date: rdvCount < 3 ? rdvDates[rdvCount] : pastDates[rdvCount - 3] || '20 janv. 2026', time: rdvTimes[rdvCount % 5], type: rdvTypes[rdvCount % 5] };
-        if (rdvCount < 3) up.push(entry); else pa.push(entry);
-        rdvCount++;
+  // Simuler: les élèves avec quiz complété = envoyés, les autres = non envoyés
+  const { envoyes, nonEnvoyes } = useMemo(() => {
+    const env: Array<{ user: typeof users[0]; init: string; dateEnvoi: string }> = [];
+    const nonEnv: Array<{ user: typeof users[0]; init: string }> = [];
+
+    users.forEach((u) => {
+      const init = ((u.prenom || '?')[0] + (u.nom || '?')[0]).toUpperCase();
+      if (u.quizCompleted) {
+        const d = u.completedAt ? new Date(u.completedAt) : new Date();
+        const dateEnvoi = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) + ' à ' + String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
+        env.push({ user: u, init, dateEnvoi });
+      } else {
+        nonEnv.push({ user: u, init });
       }
     });
-    return { upcoming: up, past: pa };
+    return { envoyes: env, nonEnvoyes: nonEnv };
   }, [users]);
-
-  const currentData = activeTab === 'upcoming' ? upcoming : past;
 
   if (!data) return <div className="ld"><div className="ld-spin" />Chargement...</div>;
 
@@ -56,18 +51,17 @@ export default function RdvPage() {
     <div className="fi" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-900)' }}>Rendez-vous</h2>
-        <button onClick={openExchange} className="btn-gradient" style={{ padding: '9px 16px', borderRadius: 10, fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ width: 14, height: 14 }}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-          Ajouter un RDV
-        </button>
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-900)' }}>Avenir(s)</h2>
+        <div style={{ fontSize: 12, color: 'var(--text-400)' }}>
+          {envoyes.length} envoyé{envoyes.length > 1 ? 's' : ''} · {nonEnvoyes.length} en attente
+        </div>
       </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid var(--border)' }}>
         {([
-          { id: 'upcoming' as Tab, label: 'RDV à venir', count: upcoming.length },
-          { id: 'past' as Tab, label: 'RDV passés', count: past.length },
+          { id: 'envoye' as Tab, label: 'Envoyés', count: envoyes.length },
+          { id: 'non_envoye' as Tab, label: 'Non envoyés', count: nonEnvoyes.length },
         ]).map(tab => {
           const isActive = activeTab === tab.id;
           return (
@@ -97,56 +91,105 @@ export default function RdvPage() {
         })}
       </div>
 
-      {/* Table */}
-      <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              {['Élève', 'Date', 'Heure', 'Type', 'Statut', ...(activeTab === 'upcoming' ? [''] : [])].map((h, i) => (
-                <th key={i} style={thStyle}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.length === 0 ? (
+      {/* Table Envoyés */}
+      {activeTab === 'envoye' && (
+        <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: 40, color: 'var(--text-300)', fontSize: 13 }}>
-                  {activeTab === 'upcoming' ? 'Aucun RDV à venir' : 'Aucun RDV passé'}
-                </td>
+                {['Nom', 'Prénom', "Date d'envoi", 'Statut', ''].map((h, i) => (
+                  <th key={i} style={thStyle}>{h}</th>
+                ))}
               </tr>
-            ) : (
-              currentData.map((r, i) => (
-                <tr key={i} onClick={() => openProfile(r.user.uid)} style={{ cursor: 'pointer' }}>
-                  <td style={tdStyle}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <Avatar initials={r.init} />
-                      <span style={{ fontWeight: 600, color: 'var(--text-900)' }}>{r.user.prenom} {r.user.nom}</span>
-                    </div>
+            </thead>
+            <tbody>
+              {envoyes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'var(--text-300)', fontSize: 13 }}>
+                    Aucun envoi effectué
                   </td>
-                  <td style={tdStyle}>{r.date}</td>
-                  <td style={tdStyle}>{r.time}</td>
-                  <td style={tdStyle}>{r.type}</td>
-                  <td style={tdStyle}>
-                    {activeTab === 'upcoming' ? (
-                      <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 5, background: 'linear-gradient(135deg, #7f4997, #E84393)', color: '#fff' }}>Confirmé</span>
-                    ) : (
-                      <Badge label="Effectué" className="badge-green" />
-                    )}
-                  </td>
-                  {activeTab === 'upcoming' && (
+                </tr>
+              ) : (
+                envoyes.map((r, i) => (
+                  <tr key={i} onClick={() => openProfile(r.user.uid)} style={{ cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#fafbfc')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+                  >
+                    <td style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Avatar initials={r.init} />
+                        <span style={{ fontWeight: 600, color: 'var(--text-900)' }}>{r.user.nom || '—'}</span>
+                      </div>
+                    </td>
+                    <td style={tdStyle}>{r.user.prenom || '—'}</td>
+                    <td style={tdStyle}>{r.dateEnvoi}</td>
+                    <td style={tdStyle}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" style={{ width: 12, height: 12 }}><polyline points="20 6 9 17 4 12" /></svg>
+                        <Badge label="Confirmé" className="badge-green" />
+                      </span>
+                    </td>
                     <td style={tdStyle}>
                       <button onClick={(e) => { e.stopPropagation(); openProfile(r.user.uid); }}
                         style={{ fontSize: 11, padding: '5px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--white)', fontFamily: 'inherit', fontWeight: 500, color: 'var(--text-700)', cursor: 'pointer' }}>
                         Voir la fiche ›
                       </button>
                     </td>
-                  )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Table Non envoyés */}
+      {activeTab === 'non_envoye' && (
+        <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['Nom', 'Prénom', 'Statut', ''].map((h, i) => (
+                  <th key={i} style={thStyle}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {nonEnvoyes.length === 0 ? (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: 40, color: 'var(--text-300)', fontSize: 13 }}>
+                    Tous les élèves ont été envoyés
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                nonEnvoyes.map((r, i) => (
+                  <tr key={i} onClick={() => openProfile(r.user.uid)} style={{ cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#fafbfc')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+                  >
+                    <td style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Avatar initials={r.init} />
+                        <span style={{ fontWeight: 600, color: 'var(--text-900)' }}>{r.user.nom || '—'}</span>
+                      </div>
+                    </td>
+                    <td style={tdStyle}>{r.user.prenom || '—'}</td>
+                    <td style={tdStyle}>
+                      <Badge label="En attente" className="badge-grey" />
+                    </td>
+                    <td style={tdStyle}>
+                      <button onClick={(e) => { e.stopPropagation(); openProfile(r.user.uid); }}
+                        style={{ fontSize: 11, padding: '5px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--white)', fontFamily: 'inherit', fontWeight: 500, color: 'var(--text-700)', cursor: 'pointer' }}>
+                        Voir la fiche ›
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
