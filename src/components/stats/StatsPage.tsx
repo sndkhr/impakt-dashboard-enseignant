@@ -76,11 +76,12 @@ export default function StatsPage() {
 
   const tauxCompletion = total > 0 ? Math.round(completed / total * 100) : 0;
   const projetsValides = Math.round(completed * 0.6);
-  const tauxValidation = completed > 0 ? Math.round(projetsValides / completed * 100) : 0;
-  const avgDays = useMemo(() => Math.round(45 + Math.random() * 60), []);
-  const finalises = Math.round(projetsValides * 0.7);
-  const tauxSortie = total > 0 ? Math.round(finalises / total * 100) : 0;
-
+    const tauxTransmission = total > 0 ? Math.round(completed / total * 100) : 0;
+  const parcoursEnregistres = useMemo(() => {
+    return users.filter(u => u.quizCompleted).length;
+  }, [users]);
+    const finalises = Math.round(projetsValides * 0.7);
+  
   // Status repartition
   const notStarted = total - started;
   const startedNotDone = started - completed;
@@ -139,7 +140,7 @@ export default function StatsPage() {
           datasets: [
             { label: 'Inscriptions', data: inscrData, borderColor: '#7f4997', backgroundColor: 'rgba(127,73,151,.08)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#7f4997' },
             { label: 'Tests complétés', data: testData, borderColor: '#E84393', backgroundColor: 'rgba(232,67,147,.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#E84393' },
-            { label: 'Parcours finalisés', data: finData, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#059669' },
+            { label: 'Transmissions Avenir(s)', data: finData, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#059669' },
           ],
         },
         options: {
@@ -158,10 +159,10 @@ export default function StatsPage() {
       charts.current.push(new Chart(donutRef.current, {
         type: 'doughnut',
         data: {
-          labels: ['Non démarré', 'Test en cours', 'Test terminé', 'Projet validé', 'Sorti du dispositif'],
+          labels: ['Non démarré', 'Test en cours', 'Test terminé', 'Transmis à Avenir(s)'],
           datasets: [{
-            data: [notStarted, startedNotDone, completed - projetsValides, validatedNotOut, finalises],
-            backgroundColor: ['#e5e7eb', '#fbbf24', '#E84393', '#7f4997', '#059669'],
+            data: [notStarted, startedNotDone, completed - completed, completed],
+            backgroundColor: ['#e5e7eb', '#fbbf24', '#E84393', '#059669'],
             borderWidth: 0,
           }],
         },
@@ -172,23 +173,22 @@ export default function StatsPage() {
       }));
     }
 
-    // 3. Niveau d'étude (horizontal bars)
+    // 3. Transmissions à Avenir(s) par mois
     if (eduRef.current) {
-      const eduLabels = ['Sans diplôme', 'Brevet', 'CAP/BEP', 'Bac', 'Bac+2', 'Bac+3 et plus'];
-      const eduVals = [0, 1, 2, 3, 4, 5].map(k => eduCounts[k] || 0);
+      const transLabels = ['Sept', 'Oct', 'Nov', 'Déc', 'Janv', 'Févr'];
+      const transData = [0, 2, 5, 8, 14, completed];
       charts.current.push(new Chart(eduRef.current, {
         type: 'bar',
         data: {
-          labels: eduLabels,
-          datasets: [{ data: eduVals, backgroundColor: 'rgba(127,73,151,.7)', borderRadius: 6, barPercentage: 0.6 }],
+          labels: transLabels,
+          datasets: [{ label: 'Transmissions', data: transData, backgroundColor: 'rgba(5,150,105,.7)', borderRadius: 6, barPercentage: 0.6 }],
         },
         options: {
-          indexAxis: 'y',
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { beginAtZero: true, grid: { color: '#f5f5f5' }, ticks: { font: { family: fontFamily, size: 10 } } },
-            y: { grid: { display: false }, ticks: { font: { family: fontFamily, size: 10 } } },
+            x: { grid: { display: false }, ticks: { font: { family: fontFamily, size: 10 } } },
+            y: { beginAtZero: true, grid: { color: '#f5f5f5' }, ticks: { font: { family: fontFamily, size: 10 } } },
           },
         },
       }));
@@ -256,9 +256,9 @@ export default function StatsPage() {
       {/* 4 KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         <StatKpi value={`${tauxCompletion}%`} label="Taux de complétion du test" progress={tauxCompletion} />
-        <StatKpi value={`${tauxValidation}%`} label="Taux de validation projet pro" progress={tauxValidation} />
-        <StatKpi value={avgDays} suffix=" jours" label="Durée moy. accompagnement" color="var(--text-900)" />
-        <StatKpi value={`${tauxSortie}%`} label="Taux de sortie positive" color="#059669" progress={tauxSortie} />
+        <StatKpi value={`${tauxTransmission}%`} label="Taux de transmission à Avenir(s)" progress={tauxTransmission} />
+        <StatKpi value={25} suffix=" min" label="Temps moyen sur l'app" color="var(--text-900)" />
+        <StatKpi value={parcoursEnregistres} label="Parcours enregistrés en favoris" color="#059669" />
       </div>
 
       {/* Charts row 1: Line + Donut */}
@@ -283,7 +283,7 @@ export default function StatsPage() {
 
       {/* Charts row 2: Edu bars + Activity */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <ProfCard title="Répartition par niveau d'étude">
+        <ProfCard title="Transmissions à Avenir(s)">
           <div style={{ height: 200 }}><canvas ref={eduRef} /></div>
         </ProfCard>
         <ProfCard title="Activité sur la plateforme (connexions/semaine)">

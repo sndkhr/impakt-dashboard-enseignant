@@ -9,7 +9,7 @@ import { exportBeneficiairesCSV, exportBeneficiairesPDF } from '@/lib/export';
 import Badge from '@/components/ui/Badge';
 import ProgressBar from '@/components/ui/ProgressBar';
 
-const PER_PAGE = 20;
+const PER_PAGE = 15;
 
 // Map filter eduLevel codes to actual niveauEtudes values
 function matchEduFilter(niveauEtudes: string | undefined, filterCodes: string[]): boolean {
