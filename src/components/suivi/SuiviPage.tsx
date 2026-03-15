@@ -62,8 +62,8 @@ export default function SuiviPage() {
   const { openProfile } = useNav();
   const { openFilters, activeFilters, resetFilters } = useModals();
   const [search, setSearch] = useState('');
-  const [sortField, setSortField] = useState<string>('name');
-  const [sortAsc, setSortAsc] = useState(true);
+  const [sortField, setSortField] = useState<string>('activite');
+  const [sortAsc, setSortAsc] = useState(false);
   const [page, setPage] = useState(1);
 
   const users = useMemo(() => data?.recentUsers || [], [data]);
