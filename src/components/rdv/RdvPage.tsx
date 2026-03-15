@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useNav } from '@/lib/navigation';
 import Badge from '@/components/ui/Badge';
+import ProgressBar from '@/components/ui/ProgressBar';
 
 const thStyle: React.CSSProperties = { padding: '12px 16px', fontSize: 11, fontWeight: 600, color: 'var(--text-400)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '.3px', borderBottom: '1px solid var(--border)', background: '#fafbfc', whiteSpace: 'nowrap' };
 const tdStyle: React.CSSProperties = { padding: '11px 16px', fontSize: '12.5px', color: 'var(--text-700)', borderBottom: '1px solid #f5f5f5', verticalAlign: 'middle' };
@@ -149,7 +150,7 @@ export default function RdvPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                {['Nom', 'Prénom', 'Statut', ''].map((h, i) => (
+                {['Nom', 'Prénom', 'Progression', 'Statut', ''].map((h, i) => (
                   <th key={i} style={thStyle}>{h}</th>
                 ))}
               </tr>
@@ -157,7 +158,7 @@ export default function RdvPage() {
             <tbody>
               {nonEnvoyes.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', padding: 40, color: 'var(--text-300)', fontSize: 13 }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'var(--text-300)', fontSize: 13 }}>
                     Tous les élèves ont été envoyés
                   </td>
                 </tr>
@@ -174,6 +175,7 @@ export default function RdvPage() {
                       </div>
                     </td>
                     <td style={tdStyle}>{r.user.prenom || '—'}</td>
+                    <td style={tdStyle}><ProgressBar value={r.user.quizProgress ?? 0} /></td>
                     <td style={tdStyle}>
                       <Badge label="En attente" className="badge-grey" />
                     </td>
