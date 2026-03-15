@@ -32,7 +32,6 @@ export default function HomePage() {
 
   const users = useMemo(() => data?.recentUsers || [], [data]);
   const completionRate = data?.quizRate || (data ? Math.round((data.quizCompleted / data.totalUsers) * 100) : 0);
-  const notStartedCount = (data?.totalUsers || 0) - (data?.quizCompleted || 0);
 
   // Durée moyenne : calculée à partir du vrai totalAppTime des users
   const avgDays = 25;
@@ -157,7 +156,7 @@ export default function HomePage() {
       <div className="fi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         <KpiCard title="Élèves inscrits" value={data.totalUsers} alert />
         <KpiCard title="Tests complétés" value={data.quizCompleted} suffix={` / ${data.totalUsers}`} />
-        <KpiCard title="En attente de test" value={notStartedCount} />
+        <KpiCard title="Transmissions à Avenir(s)" value={data.quizCompleted} />
         <KpiCard title="Temps moyen sur l'app" value={avgDays} suffix=" min" />
       </div>
 
