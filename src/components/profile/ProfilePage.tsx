@@ -531,8 +531,11 @@ export default function ProfilePage() {
     const a: Array<{ text: React.ReactNode; date: string }> = [];
     if (avenirSent) {
       const now = new Date();
-      const dateStr = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const dateStr = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + ' à ' + h + 'h' + m;
       a.push({ text: <><strong>Envoi des données vers Avenir(s)</strong></>, date: dateStr });
+      a.push({ text: <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: 6 }}><svg viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" style={{ width: 12, height: 12, flexShrink: 0 }}><polyline points="20 6 9 17 4 12" /></svg><strong>Réception confirmée par Avenir(s)</strong></span>, date: dateStr });
     }
     return a;
   }, [idx, metiers10, avenirSent]);
