@@ -140,7 +140,7 @@ export default function StatsPage() {
           datasets: [
             { label: 'Inscriptions', data: inscrData, borderColor: '#7f4997', backgroundColor: 'rgba(127,73,151,.08)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#7f4997' },
             { label: 'Tests complétés', data: testData, borderColor: '#E84393', backgroundColor: 'rgba(232,67,147,.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#E84393' },
-            { label: 'Transmissions Avenir(s)', data: finData, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#059669' },
+            { label: 'Transmissions Avenir(s)', data: finData, borderColor: '#E84393', backgroundColor: 'rgba(232,67,147,.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#E84393' },
           ],
         },
         options: {
@@ -162,7 +162,7 @@ export default function StatsPage() {
           labels: ['Non démarré', 'Test en cours', 'Test terminé', 'Transmis à Avenir(s)'],
           datasets: [{
             data: [notStarted, startedNotDone, completed - completed, completed],
-            backgroundColor: ['#e5e7eb', '#fbbf24', '#E84393', '#059669'],
+            backgroundColor: ['#e5e7eb', '#fbbf24', '#E84393', '#7f4997'],
             borderWidth: 0,
           }],
         },
@@ -181,7 +181,21 @@ export default function StatsPage() {
         type: 'bar',
         data: {
           labels: transLabels,
-          datasets: [{ label: 'Transmissions', data: transData, backgroundColor: 'rgba(5,150,105,.7)', borderRadius: 6, barPercentage: 0.6 }],
+          datasets: [{
+            label: 'Transmissions',
+            data: transData,
+            backgroundColor: (ctx) => {
+              const chart = ctx.chart;
+              const { ctx: c, chartArea } = chart;
+              if (!chartArea) return 'rgba(127,73,151,.7)';
+              const g = c.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+              g.addColorStop(0, '#E84393');
+              g.addColorStop(1, '#7f4997');
+              return g;
+            },
+            borderRadius: 6,
+            barPercentage: 0.6,
+          }],
         },
         options: {
           responsive: true, maintainAspectRatio: false,
@@ -258,7 +272,7 @@ export default function StatsPage() {
         <StatKpi value={`${tauxCompletion}%`} label="Taux de complétion du test" progress={tauxCompletion} />
         <StatKpi value={`${tauxTransmission}%`} label="Taux de transmission à Avenir(s)" progress={tauxTransmission} />
         <StatKpi value={25} suffix=" min" label="Temps moyen sur l'app" color="var(--text-900)" />
-        <StatKpi value={parcoursEnregistres} label="Parcours enregistrés en favoris" color="#059669" />
+        <StatKpi value={parcoursEnregistres} label="Parcours enregistrés en favoris" color="var(--accent)" />
       </div>
 
       {/* Charts row 1: Line + Donut */}
