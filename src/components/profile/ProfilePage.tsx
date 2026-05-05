@@ -697,6 +697,8 @@ export default function ProfilePage() {
   const [expandedPathway, setExpandedPathway] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  // Etat du bouton "Envoyer à Avenir(s)" : idle → sending → sent (3s) → idle
+  const [avenirsState, setAvenirsState] = useState<'idle' | 'sending' | 'sent'>('idle');
   // v17.8 — Demandes de formation envoyées par le jeune via le bouton iOS
   const [formationRequests, setFormationRequests] = useState<FormationRequest[]>([]);
 
@@ -1341,6 +1343,15 @@ export default function ProfilePage() {
           0%   { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
+        @keyframes sentPop {
+          0%   { transform: scale(.7); opacity: 0; }
+          60%  { transform: scale(1.08); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes sentRipple {
+          0%   { transform: scale(.6); opacity: .7; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
         /* Masque la scrollbar horizontale sous la rangée d'onglets — tout en
            conservant le défilement par swipe/trackpad. */
         .fi-tabs::-webkit-scrollbar { display: none; height: 0; }
@@ -1485,7 +1496,82 @@ export default function ProfilePage() {
                 </>
               )}
             </div>
-            {/* Keyframes spin déclarés au niveau global du composant (consolidation styled-jsx). */}
+            {/* === Bouton "Envoyer à Avenir(s)" avec animation de confirmation === */}
+            <button
+              onClick={() => {
+                if (avenirsState !== 'idle') return;
+                setAvenirsState('sending');
+                // Simu API call — quand le vrai endpoint sera prêt, remplacer par un fetch réel
+                setTimeout(() => {
+                  setAvenirsState('sent');
+                  setTimeout(() => setAvenirsState('idle'), 2200);
+                }, 700);
+              }}
+              disabled={avenirsState !== 'idle'}
+              onMouseEnter={(e) => {
+                if (avenirsState === 'idle') {
+                  (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 20px rgba(232,67,147,0.32), inset 0 1px 0 rgba(255,255,255,0.35)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'none';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = avenirsState === 'sent'
+                  ? '0 4px 14px rgba(22,163,74,0.28), inset 0 1px 0 rgba(255,255,255,0.35)'
+                  : '0 4px 14px rgba(232,67,147,0.25), inset 0 1px 0 rgba(255,255,255,0.35)';
+              }}
+              style={{
+                position: 'relative', overflow: 'hidden',
+                padding: '8px 16px',
+                border: 'none', borderRadius: 999,
+                background: avenirsState === 'sent'
+                  ? 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)'
+                  : 'linear-gradient(135deg, #7f4997 0%, #E84393 100%)',
+                color: '#fff',
+                fontFamily: 'inherit', fontSize: 11.5, fontWeight: 600,
+                letterSpacing: '-0.1px',
+                cursor: avenirsState === 'idle' ? 'pointer' : 'default',
+                display: 'flex', alignItems: 'center', gap: 7,
+                boxShadow: avenirsState === 'sent'
+                  ? '0 4px 14px rgba(22,163,74,0.28), inset 0 1px 0 rgba(255,255,255,0.35)'
+                  : '0 4px 14px rgba(232,67,147,0.25), inset 0 1px 0 rgba(255,255,255,0.35)',
+                transition: 'all .25s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                minWidth: 132, justifyContent: 'center',
+              }}
+            >
+              {avenirsState === 'idle' && (
+                <>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13 }}>
+                    <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                  Envoyer à Avenir(s)
+                </>
+              )}
+              {avenirsState === 'sending' && (
+                <>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13, animation: 'spin 1s linear infinite' }}>
+                    <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                  Envoi…
+                </>
+              )}
+              {avenirsState === 'sent' && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 7, animation: 'sentPop .4s cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Envoyé !
+                </span>
+              )}
+              {avenirsState === 'sent' && (
+                <span aria-hidden style={{
+                  position: 'absolute', inset: 0, borderRadius: 999,
+                  background: 'rgba(255,255,255,0.25)',
+                  animation: 'sentRipple .9s ease-out',
+                  pointerEvents: 'none',
+                }} />
+              )}
+            </button>
           </div>
 
           {/* TABS DISCRETS — juste sous le header */}
