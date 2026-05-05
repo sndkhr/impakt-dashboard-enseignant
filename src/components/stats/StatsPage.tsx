@@ -11,14 +11,13 @@ import { computeAlertLevel } from '@/types';
 import { staggerDelay } from '@/lib/motion';
 
 /* ============================================================
-   STATS PAGE — tailored pour un conseiller France Travail
-   6 sections utiles :
-   1. KPIs portefeuille
+   STATS PAGE — tailored pour un prof principal
+   5 sections utiles :
+   1. KPIs classe
    2. Evolution 12 mois
    3. Repartition statuts + Alertes actionables
    4. Top metiers / secteurs / formations
-   5. Activite conseiller + engagement IMPAKT
-   6. Resultats (sorties positives)
+   5. Activite enseignant + engagement IMPAKT
    ============================================================ */
 
 const DAY_MS = 86400000;
@@ -115,20 +114,6 @@ function RankingList({ items, accent }: { items: { name: string; count: number }
   );
 }
 
-// === KPI row : mini bloc chiffré avec label ===
-function MiniKpi({ label, value, suffix, color, sub }: { label: string; value: string | number; suffix?: string; color?: string; sub?: string }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <div style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--premium-text-4)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-        <span style={{ fontSize: 19, fontWeight: 700, color: color || 'var(--premium-text)', letterSpacing: '-0.4px', fontVariantNumeric: 'tabular-nums' }}>{value}</span>
-        {suffix && <span style={{ fontSize: 11, fontWeight: 600, color: color || 'var(--premium-text-3)' }}>{suffix}</span>}
-      </div>
-      {sub && <div style={{ fontSize: 10, color: 'var(--premium-text-4)', marginTop: 2 }}>{sub}</div>}
-    </div>
-  );
-}
-
 // === ALERTE actionnable ===
 interface ActionableAlert {
   kind: 'positive' | 'warning' | 'neutral';
@@ -145,7 +130,6 @@ export default function StatsPage() {
   const statutRef = useRef<HTMLCanvasElement>(null);
   const parcoursRef = useRef<HTMLCanvasElement>(null);
   const rdvRef = useRef<HTMLCanvasElement>(null);
-  const sortiesRef = useRef<HTMLCanvasElement>(null);
   const charts = useRef<Chart[]>([]);
 
   const users = useMemo(() => data?.recentUsers || [], [data]);
@@ -170,12 +154,6 @@ export default function StatsPage() {
     return Math.round(sum / users.length);
   }, [users, now]);
 
-  // Sorties positives (mock — à brancher quand backend dispo)
-  const sortiesPositivesMois = useMemo(() => Math.max(1, Math.round(total * 0.05)), [total]);
-  const tauxPlacement3m = useMemo(() => Math.min(42, Math.round(total * 0.18)), [total]);
-  const tauxPlacement6m = useMemo(() => Math.min(58, Math.round(total * 0.26)), [total]);
-  const tauxPlacement12m = useMemo(() => Math.min(72, Math.round(total * 0.38)), [total]);
-
   // Trends 7j pour KPIs
   const trInsc = useMemo(() => inscriptionsTrend(users, 7), [users]);
   const trCompleted = useMemo(() => completedTrend(users, 7), [users]);
@@ -191,17 +169,14 @@ export default function StatsPage() {
       const lvl = computeAlertLevel(u);
       return lvl === 'bloque' || lvl === 'decroch';
     }).length;
-    // Sorties positives (mock)
-    const placed = sortiesPositivesMois;
     return {
       'Non démarré': notStarted,
       'Test en cours': inProgress,
-      'Test terminé': Math.max(0, completedNoFav - placed),
+      'Test terminé': completedNoFav,
       'Projet identifié': Math.max(0, withFav - blocked),
       'En alerte': blocked,
-      'Sortie positive': placed,
     };
-  }, [users, sortiesPositivesMois]);
+  }, [users]);
 
   // Top metiers agréges
   const topMetiers = useMemo(() => {
@@ -275,7 +250,6 @@ export default function StatsPage() {
         const months = ['Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Janv', 'Févr', 'Mars', 'Avr'];
         const inscrData = months.map((_, i) => Math.round(total * (0.05 + i * 0.006)));
         const testData = months.map((_, i) => Math.round(inscrData[i] * 0.45));
-        const sortiesData = months.map((_, i) => Math.round(inscrData[i] * 0.18));
 
         const gradInsc = ctx.createLinearGradient(0, 0, 0, 280);
         gradInsc.addColorStop(0, 'rgba(127,73,151,0.25)');
@@ -283,9 +257,6 @@ export default function StatsPage() {
         const gradTest = ctx.createLinearGradient(0, 0, 0, 280);
         gradTest.addColorStop(0, 'rgba(232,67,147,0.22)');
         gradTest.addColorStop(1, 'rgba(232,67,147,0)');
-        const gradSort = ctx.createLinearGradient(0, 0, 0, 280);
-        gradSort.addColorStop(0, 'rgba(26,19,51,0.18)');
-        gradSort.addColorStop(1, 'rgba(26,19,51,0)');
 
         charts.current.push(new Chart(ctx, {
           type: 'line',
@@ -294,7 +265,6 @@ export default function StatsPage() {
             datasets: [
               { label: 'Inscriptions', data: inscrData, borderColor: '#7f4997', backgroundColor: gradInsc, fill: true, tension: 0.4, borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: '#7f4997', pointHoverBorderColor: '#ffffff', pointHoverBorderWidth: 2 },
               { label: 'Tests terminés', data: testData, borderColor: '#E84393', backgroundColor: gradTest, fill: true, tension: 0.4, borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: '#E84393', pointHoverBorderColor: '#ffffff', pointHoverBorderWidth: 2 },
-              { label: 'Sorties positives', data: sortiesData, borderColor: '#1a1333', backgroundColor: gradSort, fill: true, tension: 0.4, borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: '#1a1333', pointHoverBorderColor: '#ffffff', pointHoverBorderWidth: 2 },
             ],
           },
           options: {
@@ -376,34 +346,8 @@ export default function StatsPage() {
       }
     }
 
-    // 5. Sorties par mois (bar chart)
-    if (sortiesRef.current) {
-      const ctx = sortiesRef.current.getContext('2d');
-      if (ctx) {
-        const months = ['Nov', 'Déc', 'Janv', 'Févr', 'Mars', 'Avr'];
-        const emplois = months.map((_, i) => Math.max(1, Math.round(sortiesPositivesMois * (0.7 + i * 0.08))));
-        const formations = months.map((_, i) => Math.max(1, Math.round(sortiesPositivesMois * (0.5 + i * 0.06))));
-        charts.current.push(new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: months,
-            datasets: [
-              { label: 'Emploi', data: emplois, backgroundColor: '#7f4997', borderRadius: 5, barPercentage: 0.6, stack: 's1' },
-              { label: 'Formation', data: formations, backgroundColor: '#E84393', borderRadius: 5, barPercentage: 0.6, stack: 's1' },
-            ],
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: '#525252', font: { family: fontFamily, size: 10 }, boxWidth: 8, padding: 10, usePointStyle: true, pointStyle: 'circle' } }, tooltip: { backgroundColor: 'rgba(15,15,15,0.92)', padding: 10, cornerRadius: 8 } },
-            scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#a3a3a3', font: { family: fontFamily, size: 10 } }, border: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: gridColor }, ticks: { color: '#a3a3a3', font: { family: fontFamily, size: 10 }, precision: 0 }, border: { display: false } } },
-            animation: { duration: 700 },
-          },
-        }));
-      }
-    }
-
     return () => { charts.current.forEach(c => c.destroy()); charts.current = []; };
-  }, [data, total, completed, statutCounts, sortiesPositivesMois]);
+  }, [data, total, completed, statutCounts]);
 
   if (!data) return <div className="ld"><div className="ld-spin" />Chargement…</div>;
 
@@ -488,51 +432,25 @@ export default function StatsPage() {
         </div>
       </div>
 
-      {/* === ROW 1 : 6 KPIs portefeuille === */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
-        <KpiCard index={0} gradient title="Portefeuille" value={total} trend={trInsc.series} delta={trInsc.delta} />
+      {/* === ROW 1 : 5 KPIs portefeuille === */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+        <KpiCard index={0} gradient title="Élèves" value={total} trend={trInsc.series} delta={trInsc.delta} />
         <KpiCard index={1} title="Actifs 7j" value={activeWeek} trend={trActive.series} delta={trActive.delta} />
         <KpiCard index={2} title="Complétés" value={completed} trend={trCompleted.series} delta={trCompleted.delta} />
         <KpiCard index={3} title="En alerte" value={enAlerte} />
         <KpiCard index={4} title="Motivation" value={avgMotivation} suffix="%" />
-        <KpiCard index={5} title="Sorties mois" value={sortiesPositivesMois} />
       </div>
 
-      {/* === ROW 2 : Évolution 12 mois (full) + KPI résumé taux === */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2.2fr) minmax(0, 1fr)', gap: 14 }}>
-        <GlassPanel title="Évolution sur 12 mois" subtitle="Inscriptions · Tests terminés · Sorties positives" index={0}>
-          <div style={{ position: 'relative', height: 260 }}>
-            <canvas ref={lineRef} />
-          </div>
-        </GlassPanel>
-
-        <GlassPanel title="Résultats d'insertion" subtitle="Taux de placement (emploi/formation)" index={1}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 6 }}>
-            {[
-              { label: '3 mois', pct: tauxPlacement3m, color: '#c4b5fd' },
-              { label: '6 mois', pct: tauxPlacement6m, color: '#7f4997' },
-              { label: '12 mois', pct: tauxPlacement12m, color: '#E84393' },
-            ].map(r => (
-              <div key={r.label}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                  <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--premium-text-2)' }}>À {r.label}</span>
-                  <span style={{ fontSize: 18, fontWeight: 700, color: r.color, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.3px' }}>{r.pct}%</span>
-                </div>
-                <div style={{ height: 7, background: 'rgba(15,15,15,0.05)', borderRadius: 999, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${r.pct}%`, background: r.color, borderRadius: 999, transition: 'width .8s cubic-bezier(0.2, 0.8, 0.2, 1)' }} />
-                </div>
-              </div>
-            ))}
-            <div style={{ marginTop: 2, padding: '8px 10px', background: 'rgba(127,73,151,0.06)', border: '1px solid rgba(127,73,151,0.18)', borderRadius: 9, fontSize: 10.5, color: '#7f4997', fontWeight: 600, lineHeight: 1.45 }}>
-              {Math.round((tauxPlacement12m / 100) * total)} jeunes placés sur l&apos;année glissante
-            </div>
-          </div>
-        </GlassPanel>
-      </div>
+      {/* === ROW 2 : Évolution 12 mois (pleine largeur) === */}
+      <GlassPanel title="Évolution sur 12 mois" subtitle="Inscriptions · Tests terminés" index={0}>
+        <div style={{ position: 'relative', height: 260 }}>
+          <canvas ref={lineRef} />
+        </div>
+      </GlassPanel>
 
       {/* === ROW 3 : Répartition portefeuille (donut) + Alertes actionnables === */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 14 }}>
-        <GlassPanel title="Répartition du portefeuille" subtitle={`${total} jeunes suivis · 6 statuts`} index={0}>
+        <GlassPanel title="Répartition de la classe" subtitle={`${total} élèves suivis · 5 statuts`} index={0}>
           <div style={{ position: 'relative', height: 240 }}>
             <canvas ref={statutRef} />
           </div>
@@ -613,36 +531,6 @@ export default function StatsPage() {
         <GlassPanel title="Parcours de formation" subtitle="Statut de validation sur le portefeuille" index={1}>
           <div style={{ position: 'relative', height: 220 }}>
             <canvas ref={parcoursRef} />
-          </div>
-        </GlassPanel>
-      </div>
-
-      {/* === ROW 6 : Résultats sorties positives === */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: 14 }}>
-        <GlassPanel title="Sorties positives" subtitle="Jeunes placés en emploi ou formation" index={0}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 4 }}>
-            <div style={{
-              padding: '16px 18px',
-              background: 'linear-gradient(135deg, rgba(127,73,151,0.08), rgba(232,67,147,0.08))',
-              border: '1px solid rgba(127,73,151,0.18)',
-              borderRadius: 12,
-            }}>
-              <div style={{ fontSize: 9.5, fontWeight: 700, color: '#7f4997', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 4 }}>Ce mois-ci</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                <span style={{ fontSize: 28, fontWeight: 700, color: '#7f4997', letterSpacing: '-0.6px', fontVariantNumeric: 'tabular-nums' }}>{sortiesPositivesMois}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#E84393' }}>sorties</span>
-              </div>
-              <div style={{ fontSize: 10.5, color: 'var(--premium-text-3)', marginTop: 4 }}>
-                {Math.round(sortiesPositivesMois * 0.6)} emploi · {Math.round(sortiesPositivesMois * 0.4)} formation
-              </div>
-            </div>
-            <MiniKpi label="Total 12 mois" value={Math.round(sortiesPositivesMois * 9)} color="#7f4997" sub={`${tauxPlacement12m}% du portefeuille`} />
-          </div>
-        </GlassPanel>
-
-        <GlassPanel title="Évolution des sorties" subtitle="6 derniers mois · emploi + formation" index={1}>
-          <div style={{ position: 'relative', height: 200 }}>
-            <canvas ref={sortiesRef} />
           </div>
         </GlassPanel>
       </div>
