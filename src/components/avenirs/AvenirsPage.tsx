@@ -325,18 +325,36 @@ export default function AvenirsPage() {
                   color: page === 1 ? 'var(--text-300)' : 'var(--text-700)',
                   cursor: page === 1 ? 'default' : 'pointer',
                 }}>‹ Précédent</button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                <button key={p} onClick={() => setPage(p)}
-                  style={{
-                    width: 32, height: 32,
-                    border: p === page ? 'none' : '1px solid var(--border)',
-                    borderRadius: 8,
-                    background: p === page ? 'linear-gradient(135deg, #7f4997, #E84393)' : 'var(--white)',
-                    color: p === page ? '#fff' : 'var(--text-700)',
-                    fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{p}</button>
-              ))}
+              {(() => {
+                const items: (number | 'gap')[] = [];
+                const win = 1;
+                const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+                if (totalPages <= 7) {
+                  items.push(...range(1, totalPages));
+                } else {
+                  const start = Math.max(2, page - win);
+                  const end = Math.min(totalPages - 1, page + win);
+                  items.push(1);
+                  if (start > 2) items.push('gap');
+                  items.push(...range(start, end));
+                  if (end < totalPages - 1) items.push('gap');
+                  items.push(totalPages);
+                }
+                return items.map((p, idx) => p === 'gap' ? (
+                  <span key={`gap-${idx}`} style={{ width: 22, height: 32, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--premium-text-4)', fontSize: 12 }}>…</span>
+                ) : (
+                  <button key={p} onClick={() => setPage(p as number)}
+                    style={{
+                      width: 32, height: 32,
+                      border: p === page ? 'none' : '1px solid var(--border)',
+                      borderRadius: 8,
+                      background: p === page ? 'linear-gradient(135deg, #7f4997, #E84393)' : 'var(--white)',
+                      color: p === page ? '#fff' : 'var(--text-700)',
+                      fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{p}</button>
+                ));
+              })()}
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
                 style={{
                   padding: '6px 12px', border: '1px solid rgba(255,255,255,0.7)', borderRadius: 8,
