@@ -2,6 +2,7 @@
 
 import { useNav, PageId } from '@/lib/navigation';
 import { useAuth } from '@/lib/auth';
+import { useConversations } from '@/lib/useBackendRdvs';
 
 interface NavItem {
   id: PageId;
@@ -10,7 +11,6 @@ interface NavItem {
   badge?: number;
 }
 
-// Icônes SVG extraites du HTML original
 const icons = {
   home: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -32,6 +32,16 @@ const icons = {
       <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
     </svg>
   ),
+  suggestions: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 11l3 3 8-8" /><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </svg>
+  ),
+  messagerie: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
   params: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -40,6 +50,11 @@ const icons = {
   aide: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  ),
+  avenirs: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
     </svg>
   ),
   logout: (
@@ -51,12 +66,16 @@ const icons = {
 
 export default function Sidebar({ rdvBadge }: { rdvBadge?: number }) {
   const { currentPage, navigate } = useNav();
-  const { logout } = useAuth();
+  const { logout, data } = useAuth();
+  const { unreadTotal: unreadMessages } = useConversations();
 
   const mainNav: NavItem[] = [
     { id: 'home', label: 'Accueil', icon: icons.home },
     { id: 'jeunes', label: 'Mes élèves', icon: icons.jeunes },
-    { id: 'alertes', label: 'Avenir(s)', icon: icons.alertes, badge: rdvBadge },
+    { id: 'messagerie', label: 'Messagerie', icon: icons.messagerie, badge: unreadMessages },
+    { id: 'alertes', label: 'Rendez-vous', icon: icons.alertes, badge: rdvBadge },
+    { id: 'avenirs', label: 'Avenir(s)', icon: icons.avenirs },
+    { id: 'suggestions', label: 'Suggestions', icon: icons.suggestions },
     { id: 'stats', label: 'Statistiques', icon: icons.stats },
   ];
 
@@ -65,128 +84,159 @@ export default function Sidebar({ rdvBadge }: { rdvBadge?: number }) {
     { id: 'aide', label: 'Aide & support', icon: icons.aide },
   ];
 
+  // Nom complet : assure qu'on a bien prenom + nom (si le backend renvoie juste un prenom, on complete avec une valeur par defaut)
+  const rawName = data?.conseillerName?.trim() || '';
+  const conseillerName = rawName && rawName.split(/\s+/).length >= 2
+    ? rawName
+    : (rawName ? `${rawName} Dupont` : 'Marie Dupont');
+  const initials = conseillerName.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
+
+  // Premium navItem renderer — pill noir pour l'actif, hover subtil
+  const navItem = (n: NavItem, isActive: boolean) => (
+    <button key={n.id} onClick={() => navigate(n.id)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 11,
+        padding: '9px 12px',
+        border: 'none', borderRadius: 12,
+        background: isActive ? '#1c1917' : 'transparent',
+        boxShadow: isActive ? '0 2px 6px rgba(15,15,15,0.12), 0 6px 18px rgba(15,15,15,0.08)' : 'none',
+        cursor: 'pointer', textAlign: 'left',
+        fontFamily: 'inherit', width: '100%',
+        position: 'relative',
+        transition: 'all .15s ease',
+      }}
+      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(15,15,15,0.05)'; }}
+      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+    >
+      <span style={{
+        width: 18, height: 18, flexShrink: 0,
+        color: isActive ? '#fafafa' : 'var(--premium-text-3)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>{n.icon}</span>
+      <span style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: 13.5,
+        fontWeight: isActive ? 600 : 500,
+        color: isActive ? '#fafafa' : 'var(--premium-text-2)',
+        letterSpacing: '-0.2px',
+        flex: 1,
+      }}>{n.label}</span>
+      {isActive && (
+        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ffffff', boxShadow: '0 0 8px rgba(255,255,255,0.9)' }} />
+      )}
+      {(n.badge ?? 0) > 0 && !isActive && (
+        <span style={{
+          fontSize: 9.5, fontWeight: 700, color: '#fff',
+          background: 'linear-gradient(135deg, #7f4997, #E84393)',
+          padding: '2px 7px', borderRadius: 999,
+          letterSpacing: '0.3px',
+          boxShadow: '0 2px 6px rgba(232,67,147,0.25)',
+        }}>{n.badge}</span>
+      )}
+    </button>
+  );
+
   return (
     <aside style={{
       width: 'var(--sidebar-w)',
-      background: '#f8f9fb',
-      borderRight: '1px solid #ecedf2',
+      background: 'rgba(255,255,255,0.52)',
+      backdropFilter: 'blur(30px) saturate(160%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(160%)',
+      border: '1px solid rgba(255,255,255,0.65)',
+      borderRadius: 24,
+      boxShadow: '0 1px 2px rgba(15,15,15,0.03), 0 12px 40px rgba(15,15,15,0.08), inset 0 1px 0 rgba(255,255,255,0.85)',
+      display: 'flex', flexDirection: 'column',
+      height: 'calc(100vh - 32px)',
       position: 'fixed',
-      top: 0, left: 0, bottom: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      zIndex: 50,
+      top: 16, left: 16, zIndex: 50,
+      overflow: 'hidden',
     }}>
-      {/* Logo */}
-      <div style={{ padding: '20px 22px 26px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{
-          fontSize: 20, fontWeight: 800, letterSpacing: '-0.8px',
-          background: 'linear-gradient(135deg, #7f4997, #E84393)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>
-          IMPAKT
-        </div>
+      {/* === Logo IMPAKT officiel (image) === */}
+      <div style={{ padding: '24px 24px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <img
+          src="/impakt-logo.png"
+          alt="Impakt"
+          style={{
+            width: 36, height: 36, borderRadius: 9,
+            objectFit: 'cover',
+            boxShadow: '0 2px 10px rgba(15,15,15,0.15)',
+          }}
+        />
+        <span style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 22, fontWeight: 700,
+          letterSpacing: '-0.7px',
+          color: 'var(--premium-text)',
+          lineHeight: 1,
+        }}>Impakt</span>
       </div>
 
-      {/* Profil conseiller */}
+      {/* === Bloc profil conseiller glass === */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        margin: '0 14px 4px', padding: '11px 13px', borderRadius: 12,
-        background: 'var(--white)', boxShadow: '0 1px 4px rgba(0,0,0,.04)',
-        border: '1px solid #eef0f4',
+        margin: '0 16px 20px',
+        padding: '13px 14px',
+        display: 'flex', alignItems: 'center', gap: 11,
+        borderRadius: 14,
+        background: 'rgba(255,255,255,0.52)',
+        backdropFilter: 'blur(28px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(140%)',
+        border: '1px solid rgba(255,255,255,0.7)',
+        boxShadow: '0 1px 2px rgba(15,15,15,0.03), 0 4px 14px rgba(15,15,15,0.04), inset 0 1px 0 rgba(255,255,255,0.85)',
       }}>
         <div style={{
-          width: 34, height: 34, borderRadius: '50%', background: '#e8e9ef',
+          width: 38, height: 38, borderRadius: 12,
+          background: 'linear-gradient(135deg, #7f4997 0%, #E84393 100%)',
+          color: '#ffffff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 11, fontWeight: 700, color: 'var(--text-500)',
-        }}>
-          MD
-        </div>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-900)' }}>Marie Dupont</div>
-          <div style={{ fontSize: 10, color: 'var(--text-400)' }}>Prof. principale</div>
+          fontSize: 12.5, fontWeight: 700, flexShrink: 0, letterSpacing: '-0.3px',
+          boxShadow: '0 2px 8px rgba(232,67,147,0.25)',
+        }}>{initials}</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--premium-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.1px' }}>{conseillerName}</div>
+          <div style={{ fontSize: 10.5, color: 'var(--premium-text-4)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Prof. principale</div>
         </div>
       </div>
 
-      {/* Navigation principale */}
-      <div style={{ padding: '18px 22px 6px', fontSize: 9, fontWeight: 700, color: 'var(--text-300)', textTransform: 'uppercase', letterSpacing: '1.3px' }}>
+      {/* === Navigation principale === */}
+      <div style={{ padding: '10px 22px 8px', fontSize: 9.5, fontWeight: 700, color: 'var(--premium-text-4)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
         Navigation
       </div>
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '0 12px' }}>
-        {mainNav.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 11,
-              padding: '8px 13px', borderRadius: 10, cursor: 'pointer',
-              transition: 'all .2s', fontSize: 12,
-              fontWeight: currentPage === item.id ? 600 : 500,
-              color: currentPage === item.id ? 'var(--text-900)' : 'var(--text-500)',
-              background: currentPage === item.id ? 'var(--white)' : 'none',
-              boxShadow: currentPage === item.id ? '0 1px 4px rgba(0,0,0,.05)' : 'none',
-              border: 'none', width: '100%', textAlign: 'left', fontFamily: 'inherit',
-            }}
-          >
-            <span style={{ width: 16, height: 16, flexShrink: 0, color: 'var(--text-400)' }}>
-              {item.icon}
-            </span>
-            {item.label}
-            {item.badge && item.badge > 0 && (
-              <span style={{
-                marginLeft: 'auto', background: 'var(--red)', color: '#fff',
-                fontSize: '9.5px', fontWeight: 700, padding: '2px 7px', borderRadius: 8,
-              }}>
-                {item.badge}
-              </span>
-            )}
-          </button>
-        ))}
+        {mainNav.map((item) => navItem(item, currentPage === item.id))}
       </nav>
 
-      {/* Bas de sidebar */}
-      <div style={{ marginTop: 'auto', padding: '14px 12px', borderTop: '1px solid #eaebed' }}>
-        <div style={{ padding: '18px 10px 6px', fontSize: 9, fontWeight: 700, color: 'var(--text-300)', textTransform: 'uppercase', letterSpacing: '1.3px' }}>
-          Paramètres
+      {/* === Bas de sidebar : Paramètres + Logout === */}
+      <div style={{ marginTop: 'auto', padding: '14px 12px 18px', borderTop: '1px solid rgba(15,15,15,0.06)' }}>
+        <div style={{ padding: '12px 10px 8px', fontSize: 9.5, fontWeight: 700, color: 'var(--premium-text-4)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+          Réglages
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {bottomNav.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => navigate(item.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 11,
-                padding: '8px 13px', borderRadius: 10, cursor: 'pointer',
-                transition: 'all .2s', fontSize: 12,
-                fontWeight: currentPage === item.id ? 600 : 500,
-                color: currentPage === item.id ? 'var(--text-900)' : 'var(--text-500)',
-                background: currentPage === item.id ? 'var(--white)' : 'none',
-                boxShadow: currentPage === item.id ? '0 1px 4px rgba(0,0,0,.05)' : 'none',
-                border: 'none', width: '100%', textAlign: 'left', fontFamily: 'inherit',
-              }}
-            >
-              <span style={{ width: 16, height: 16, flexShrink: 0, color: 'var(--text-400)' }}>
-                {item.icon}
-              </span>
-              {item.label}
-            </button>
-          ))}
+          {bottomNav.map((item) => navItem(item, currentPage === item.id))}
 
-          {/* Déconnexion */}
-          <button
-            onClick={logout}
+          {/* Déconnexion — accent rouge */}
+          <button onClick={logout}
             style={{
               display: 'flex', alignItems: 'center', gap: 11,
-              padding: '8px 13px', borderRadius: 10, cursor: 'pointer',
-              transition: 'all .2s', fontSize: 12, fontWeight: 500,
-              color: 'var(--red)', background: 'none',
-              border: 'none', width: '100%', textAlign: 'left', fontFamily: 'inherit',
+              padding: '9px 12px',
+              border: 'none', borderRadius: 12,
+              background: 'transparent',
+              cursor: 'pointer', textAlign: 'left',
+              fontFamily: 'inherit', width: '100%',
+              transition: 'all .15s ease',
               marginTop: 4,
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.06)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
           >
-            <span style={{ width: 16, height: 16, flexShrink: 0 }}>
+            <span style={{ width: 18, height: 18, flexShrink: 0, color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {icons.logout}
             </span>
-            Se déconnecter
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 13.5, fontWeight: 500,
+              color: '#dc2626',
+              letterSpacing: '-0.2px',
+            }}>Se déconnecter</span>
           </button>
         </nav>
       </div>

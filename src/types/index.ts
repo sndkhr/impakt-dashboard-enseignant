@@ -41,11 +41,29 @@ export interface User {
   apiCallCount?: number;
   apiErrorCount?: number;
   apiTotalLatency?: number;
+  // Motivation hebdo (écrit par l'app iOS dans MotivationStore.save)
+  lastMotivationScore?: number;
+  lastMotivationAt?: string | { _seconds: number; _nanoseconds: number } | null;
+}
+
+// Score d'orientation complet (sous-collection scores/orientation)
+export interface OrientationScoreDetail {
+  riasec?: Record<string, number>;
+  domaines?: Record<string, number>;
+  families?: Record<string, number>;
+  interests?: Record<string, number>;
+  env?: Record<string, number>;
+  antiFamilies?: string[];
+  antiRiasec?: string[];
+  antiDomaines?: string[];
+  antiSector?: string | null;
+  selectedBranches?: string[];
+  updatedAt?: { _seconds: number; _nanoseconds: number } | null;
 }
 
 // Détail utilisateur (route /user/:uid)
 export interface UserDetail extends User {
-  orientationScore?: Record<string, number> | null;
+  orientationScore?: OrientationScoreDetail | null;
   pathways?: Pathway[];
   activity?: ActivityEvent[];
 }

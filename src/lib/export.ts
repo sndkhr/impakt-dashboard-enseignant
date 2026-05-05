@@ -60,8 +60,8 @@ export function exportBeneficiairesPDF(users: User[]) {
   doc.text('IMPAKT', 14, 18);
   doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.text(`Liste des élèves — ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`, 14, 25);
-  doc.text(`Total : ${users.length} élèves`, 14, 31);
+  doc.text(`Liste des bénéficiaires — ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`, 14, 25);
+  doc.text(`Total : ${users.length} bénéficiaires`, 14, 31);
 
   // Table
   autoTable(doc, {
@@ -122,7 +122,7 @@ export function exportStatsCSV(data: DashboardData) {
   csv += `Date du rapport;${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}\n\n`;
   
   csv += 'INDICATEURS CLÉS\n';
-  csv += `Élèves inscrits;${total}\n`;
+  csv += `Bénéficiaires inscrits;${total}\n`;
   csv += `Tests démarrés;${started}\n`;
   csv += `Tests complétés;${completed}\n`;
   csv += `Taux de complétion;${tauxCompletion}%\n`;
@@ -198,7 +198,7 @@ export function exportStatsPDF(data: DashboardData) {
     startY: 52,
     head: [['Indicateur', 'Valeur']],
     body: [
-      ['Élèves inscrits', total.toString()],
+      ['Bénéficiaires inscrits', total.toString()],
       ['Tests démarrés', started.toString()],
       ['Tests complétés', completed.toString()],
       ['Taux de complétion', `${tauxCompletion}%`],
@@ -273,7 +273,7 @@ export function exportStatsPDF(data: DashboardData) {
 
   autoTable(doc, {
     startY: 24,
-    head: [['#', 'Métier', 'Nombre', '% des élèves']],
+    head: [['#', 'Métier', 'Nombre', '% des bénéficiaires']],
     body: topMetiers.map(([name, count], i) => [
       (i + 1).toString(), name, count.toString(), `${Math.round(count / total * 100)}%`,
     ]),
@@ -746,7 +746,7 @@ export function exportProfilePDF(p: ProfileExportData) {
 
   // ===== 8. NOTES DU CONSEILLER =====
   y = checkPage(25);
-  doc.setFontSize(11); doc.setTextColor(...dark); doc.text('Notes de l\'enseignant', 14, y);
+  doc.setFontSize(11); doc.setTextColor(...dark); doc.text('Notes du conseiller', 14, y);
   if (p.notes.length > 0) {
     autoTable(doc, {
       startY: y + 4, head: [['Date', 'Auteur', 'Note']],
@@ -766,7 +766,7 @@ export function exportProfilePDF(p: ProfileExportData) {
   // ===== 9. ACTIONS DU CONSEILLER =====
   if (p.actions.length > 0) {
     y = checkPage(20);
-    doc.setFontSize(11); doc.setTextColor(...dark); doc.text('Actions de l\'enseignant', 14, y);
+    doc.setFontSize(11); doc.setTextColor(...dark); doc.text('Actions du conseiller', 14, y);
     autoTable(doc, {
       startY: y + 4, head: [['Action', 'Date']],
       body: p.actions.map(a => [a.text, a.date]),

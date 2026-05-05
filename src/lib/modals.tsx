@@ -30,10 +30,22 @@ export function isFilterActive(f: FilterState): boolean {
   );
 }
 
+// v17.7.30 — Données pré-remplies pour ouvrir le modal en mode édition
+export interface EditingRdv {
+  id: string;
+  jeuneUid?: string;
+  jeuneName?: string;
+  dateTime: string;     // ISO
+  location: string;
+  objet: string;
+  notes?: string;
+}
+
 interface ModalsContextType {
   // Planifier un échange
   exchangeOpen: boolean;
-  openExchange: () => void;
+  editingRdv: EditingRdv | null;
+  openExchange: (editing?: EditingRdv) => void;
   closeExchange: () => void;
   // Signaler un problème
   bugOpen: boolean;
@@ -53,12 +65,19 @@ const ModalsContext = createContext<ModalsContextType | null>(null);
 
 export function ModalsProvider({ children }: { children: ReactNode }) {
   const [exchangeOpen, setExchangeOpen] = useState(false);
+  const [editingRdv, setEditingRdv] = useState<EditingRdv | null>(null);
   const [bugOpen, setBugOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState>({ ...DEFAULT_FILTERS });
 
-  const openExchange = useCallback(() => setExchangeOpen(true), []);
-  const closeExchange = useCallback(() => setExchangeOpen(false), []);
+  const openExchange = useCallback((editing?: EditingRdv) => {
+    setEditingRdv(editing || null);
+    setExchangeOpen(true);
+  }, []);
+  const closeExchange = useCallback(() => {
+    setExchangeOpen(false);
+    setEditingRdv(null);
+  }, []);
   const openBug = useCallback(() => setBugOpen(true), []);
   const closeBug = useCallback(() => setBugOpen(false), []);
   const openFilters = useCallback(() => setFiltersOpen(true), []);
@@ -68,7 +87,7 @@ export function ModalsProvider({ children }: { children: ReactNode }) {
 
   return (
     <ModalsContext.Provider value={{
-      exchangeOpen, openExchange, closeExchange,
+      exchangeOpen, editingRdv, openExchange, closeExchange,
       bugOpen, openBug, closeBug,
       filtersOpen, openFilters, closeFilters,
       activeFilters, applyFilters, resetFilters,

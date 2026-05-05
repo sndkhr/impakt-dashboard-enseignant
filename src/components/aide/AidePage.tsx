@@ -5,20 +5,20 @@ import { useModals } from '@/lib/modals';
 
 function ProfCard({ title, children, style }: { title?: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 14, padding: 18, ...style }}>
-      {title && <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-400)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 12 }}>{title}</div>}
+    <div style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.7)', borderRadius: 14, padding: 18, ...style }}>
+      {title && <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--premium-text-4)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 12 }}>{title}</div>}
       {children}
     </div>
   );
 }
 
 const faqItems = [
-  { q: 'Comment fonctionne le test IMPAKT ?', a: 'Le test IMPAKT est basé sur le modèle RIASEC (Réaliste, Investigateur, Artistique, Social, Entreprenant, Conventionnel). L\'élève répond à une série de questions adaptatives qui permettent d\'identifier ses traits de personnalité dominants. L\'algorithme croise ensuite ces résultats avec les données du marché de l\'emploi pour proposer des métiers et formations personnalisés.' },
-  { q: 'Comment valider un métier ou une formation ?', a: 'Sur la fiche de l\'élève, dans les sections "Top 10 métiers" et "Formations recommandées", vous trouverez deux boutons pour chaque suggestion : le cœur indique l\'intérêt du jeune, et la coche permet votre validation en tant qu\'enseignant. Un métier validé apparaîtra dans les actions de l\'enseignant.' },
-  { q: 'Comment planifier un rendez-vous ?', a: 'Vous pouvez planifier un RDV de deux façons : depuis la fiche d\'un élève en cliquant sur "Planifier un échange", ou depuis l\'onglet Rendez-vous en cliquant sur "Ajouter un RDV". Choisissez le type (appel ou présentiel), la date et l\'heure, puis confirmez.' },
-  { q: 'Comment finaliser un parcours ?', a: 'Quand un élève a trouvé sa voie professionnelle, ouvrez sa fiche et cliquez sur "Finaliser le parcours". Vous devrez confirmer cette action qui fait sortir l\'élève du dispositif d\'accompagnement avec une sortie positive.' },
+  { q: 'Comment fonctionne le test IMPAKT ?', a: 'Le test IMPAKT est basé sur le modèle RIASEC (Réaliste, Investigateur, Artistique, Social, Entreprenant, Conventionnel). Le jeune répond à une série de questions adaptatives qui permettent d\'identifier ses traits de personnalité dominants. L\'algorithme croise ensuite ces résultats avec les données du marché de l\'emploi pour proposer des métiers et formations personnalisés.' },
+  { q: 'Comment valider un métier ou une formation ?', a: 'Sur la fiche du bénéficiaire, dans les sections "Top 10 métiers" et "Formations recommandées", vous trouverez deux boutons pour chaque suggestion : le cœur indique l\'intérêt du jeune, et la coche permet votre validation en tant que conseiller. Un métier validé apparaîtra dans les actions du conseiller.' },
+  { q: 'Comment planifier un rendez-vous ?', a: 'Vous pouvez planifier un RDV de deux façons : depuis la fiche d\'un bénéficiaire en cliquant sur "Planifier un échange", ou depuis l\'onglet Rendez-vous en cliquant sur "Ajouter un RDV". Choisissez le type (appel ou présentiel), la date et l\'heure, puis confirmez.' },
+  { q: 'Comment finaliser un parcours ?', a: 'Quand un bénéficiaire a trouvé sa voie professionnelle, ouvrez sa fiche et cliquez sur "Finaliser le parcours". Vous devrez confirmer cette action qui fait sortir le jeune du dispositif d\'accompagnement avec une sortie positive.' },
   { q: 'Comment interpréter le profil RIASEC ?', a: 'Le profil RIASEC se compose de 6 dimensions représentées sur un graphique radar. Les dimensions les plus élevées correspondent aux centres d\'intérêt dominants du jeune. Un profil "SA" (Social-Artistique) orientera vers des métiers liés à l\'aide et la créativité, tandis qu\'un profil "RI" (Réaliste-Investigateur) orientera vers des métiers techniques et scientifiques.' },
-  { q: 'Que signifient les niveaux de statut ?', a: 'En bonne voie : l\'élève avance normalement. En cours : actif mais parcours non terminé. Bloqué : arrêté à une étape depuis plus de 7 jours. Décrochage : aucune connexion depuis plus de 14 jours. Non démarré : inscrit mais aucune action effectuée.' },
+  { q: 'Que signifient les niveaux de statut ?', a: 'En bonne voie : le jeune avance normalement. En cours : actif mais parcours non terminé. Bloqué : arrêté à une étape depuis plus de 7 jours. Décrochage : aucune connexion depuis plus de 14 jours. Non démarré : inscrit mais aucune action effectuée.' },
 ];
 
 const guides = [
@@ -28,7 +28,7 @@ const guides = [
   },
   {
     icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></>,
-    title: 'Accompagner un élève de A à Z', desc: "Le parcours complet : de l'inscription à la sortie positive.", tag: '8 min',
+    title: 'Accompagner un jeune de A à Z', desc: "Le parcours complet : de l'inscription à la sortie positive.", tag: '8 min',
   },
   {
     icon: <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
@@ -42,7 +42,7 @@ const guides = [
 
 const changelog = [
   { date: '1 mars 2026', items: ['Nouvel onglet Rendez-vous', 'Système de statut à 5 niveaux', 'Page Statistiques avec graphiques', 'Export PDF et Excel'] },
-  { date: '15 févr. 2026', items: ['Fiche personnalisée de l\'élève', 'Notes de l\'enseignant', 'Validation métiers et formations', 'Slide panel RDV'] },
+  { date: '15 févr. 2026', items: ['Fiche personnalisée du bénéficiaire', 'Notes du conseiller', 'Validation métiers et formations', 'Slide panel RDV'] },
   { date: '1 févr. 2026', items: ['Dashboard avec KPIs', 'Tableau de suivi des bénéficiaires', 'Filtres avancés', 'Système de connexion'] },
 ];
 
@@ -50,8 +50,8 @@ function FaqItem({ q, a, visible }: { q: string; a: string; visible: boolean }) 
   const [open, setOpen] = useState(false);
   if (!visible) return null;
   return (
-    <div style={{ borderBottom: '1px solid #f5f5f5', cursor: 'pointer' }} onClick={() => setOpen(!open)}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '12px 0', fontSize: 12, fontWeight: 600, color: 'var(--text-900)' }}>
+    <div style={{ borderBottom: '1px solid rgba(15,15,15,0.04)', cursor: 'pointer' }} onClick={() => setOpen(!open)}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '12px 0', fontSize: 12, fontWeight: 600, color: 'var(--premium-text)' }}>
         <span>{q}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
           style={{ width: 14, height: 14, flexShrink: 0, transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'none' }}>
@@ -59,7 +59,7 @@ function FaqItem({ q, a, visible }: { q: string; a: string; visible: boolean }) 
         </svg>
       </div>
       <div style={{
-        fontSize: 12, color: 'var(--text-500)', lineHeight: 1.6,
+        fontSize: 12, color: 'var(--premium-text-3)', lineHeight: 1.6,
         maxHeight: open ? 300 : 0, overflow: 'hidden',
         transition: 'max-height .3s, padding .3s',
         padding: open ? '0 0 12px' : 0,
@@ -87,7 +87,7 @@ export default function AidePage() {
             <input
               type="text" placeholder="Rechercher dans l'aide..."
               value={search} onChange={(e) => setSearch(e.target.value)}
-              style={{ border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 13, color: 'var(--text-900)', width: '100%' }}
+              style={{ border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 13, color: 'var(--premium-text)', width: '100%' }}
             />
           </div>
         </ProfCard>
@@ -114,8 +114,8 @@ export default function AidePage() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" style={{ width: 20, height: 20 }}>{g.icon}</svg>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-900)' }}>{g.title}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-400)', marginTop: 2 }}>{g.desc}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--premium-text)' }}>{g.title}</div>
+                  <div style={{ fontSize: 11, color: 'var(--premium-text-4)', marginTop: 2 }}>{g.desc}</div>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--accent)', background: '#f8f5ff', padding: '4px 10px', borderRadius: 6 }}>{g.tag}</span>
               </div>
@@ -136,7 +136,7 @@ export default function AidePage() {
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10, background: '#f8f5ff', borderRadius: 8 }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" style={{ width: 18, height: 18, flexShrink: 0 }}>{c.icon}</svg>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-900)' }}>{c.label}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--premium-text)' }}>{c.label}</div>
                   <div style={{ fontSize: 11, color: 'var(--accent)' }}>{c.value}</div>
                 </div>
               </div>
@@ -163,7 +163,7 @@ export default function AidePage() {
               {c.items.map((item, ii) => (
                 <div key={ii} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #7f4997, #E84393)', flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: 'var(--text-700)' }}>{item}</span>
+                  <span style={{ fontSize: 12, color: 'var(--premium-text-2)' }}>{item}</span>
                 </div>
               ))}
             </div>

@@ -70,18 +70,18 @@ export default function FilterPanel({ open, onClose, onApply }: {
       {/* Panel */}
       <div style={{
         position: 'fixed', top: 0, right: 0, bottom: 0, width: 320,
-        background: 'var(--white)', boxShadow: '-4px 0 24px rgba(0,0,0,.08)',
+        background: 'rgba(255,255,255,0.55)', boxShadow: '-4px 0 24px rgba(0,0,0,.08)',
         zIndex: 101, transform: open ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform .3s cubic-bezier(.16,1,.3,1)',
         display: 'flex', flexDirection: 'column',
       }}>
         {/* Head */}
         <div style={{ padding: '18px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-900)' }}>Filtres</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--premium-text)' }}>Filtres</span>
           <button onClick={onClose} style={{
             width: 32, height: 32, borderRadius: 8, border: 'none', background: '#f3f4f6',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', fontSize: 16, color: 'var(--text-500)',
+            cursor: 'pointer', fontSize: 16, color: 'var(--premium-text-3)',
           }}>✕</button>
         </div>
 
@@ -89,7 +89,7 @@ export default function FilterPanel({ open, onClose, onApply }: {
         <div style={{ flex: 1, overflowY: 'auto', padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Genre */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-900)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Genre</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--premium-text)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Genre</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               <CheckChip label="Homme" checked={filters.genders.includes('H')} onChange={() => setFilters(f => ({ ...f, genders: toggleInArray(f.genders, 'H') }))} />
               <CheckChip label="Femme" checked={filters.genders.includes('F')} onChange={() => setFilters(f => ({ ...f, genders: toggleInArray(f.genders, 'F') }))} />
@@ -98,8 +98,8 @@ export default function FilterPanel({ open, onClose, onApply }: {
 
           {/* Âge */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-900)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Tranche d&apos;âge</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: 'var(--text-900)', marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--premium-text)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Tranche d&apos;âge</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: 'var(--premium-text)', marginBottom: 8 }}>
               <span>{filters.ageMin} ans</span><span>{filters.ageMax} ans</span>
             </div>
             <div style={{ position: 'relative', height: 18 }}>
@@ -129,7 +129,7 @@ export default function FilterPanel({ open, onClose, onApply }: {
 
           {/* Niveau d'étude */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-900)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Niveau d&apos;étude</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--premium-text)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Niveau d&apos;étude</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {[
                 { v: 'sans', l: 'Sans diplôme' }, { v: 'cap', l: 'CAP / BEP' }, { v: 'bac', l: 'Bac' },
@@ -143,7 +143,7 @@ export default function FilterPanel({ open, onClose, onApply }: {
 
           {/* Statut parcours */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-900)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Statut du parcours</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--premium-text)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Statut du parcours</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {[
                 { v: 'n', l: 'Non démarré' }, { v: 'p', l: 'En cours' }, { v: 't', l: 'Terminé' },
@@ -156,7 +156,7 @@ export default function FilterPanel({ open, onClose, onApply }: {
 
           {/* Niveau alerte */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-900)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Niveau de statut</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--premium-text)', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 8 }}>Niveau de statut</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {[
                 { v: 'ok', l: 'En bonne voie' }, { v: 'cours', l: 'En cours' }, { v: 'bloque', l: 'Bloqué' },
@@ -172,9 +172,9 @@ export default function FilterPanel({ open, onClose, onApply }: {
         {/* Footer */}
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border)', display: 'flex', gap: 8 }}>
           <button onClick={handleReset} style={{
-            flex: 1, padding: 10, border: '1px solid var(--border)', borderRadius: 8,
-            background: 'var(--white)', fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
-            color: 'var(--text-700)', cursor: 'pointer',
+            flex: 1, padding: 10, border: '1px solid rgba(255,255,255,0.7)', borderRadius: 8,
+            background: 'rgba(255,255,255,0.55)', fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+            color: 'var(--premium-text-2)', cursor: 'pointer',
           }}>Réinitialiser</button>
           <button onClick={handleApply} className="btn-gradient" style={{
             flex: 1, padding: 10, borderRadius: 8, fontFamily: 'inherit', fontSize: 12,
