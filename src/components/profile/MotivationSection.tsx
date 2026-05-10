@@ -49,8 +49,6 @@ function questionsFor(journal: MotivationJournalDTO | undefined, userData: { sit
   return set === 'lyceen' ? QUESTIONS_LYCEEN : QUESTIONS_DEFAULT;
 }
 
-const QUESTIONS: Array<QuestionMeta> = QUESTIONS_DEFAULT;
-
 const SCORE_THRESHOLDS = {
   green: 70,
   orange: 40,
