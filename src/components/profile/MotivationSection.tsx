@@ -19,7 +19,9 @@ interface Props {
   onSeeAll?: () => void;     // si défini, affiche un bouton "Voir tout →" en bas
 }
 
-const QUESTIONS: Array<{ key: keyof MotivationJournalDTO; label: string; positiveIsGood: boolean; infoOnly?: boolean }> = [
+type QuestionMeta = { key: keyof MotivationJournalDTO; label: string; positiveIsGood: boolean; infoOnly?: boolean };
+
+const QUESTIONS_DEFAULT: Array<QuestionMeta> = [
   { key: 'motivation', label: 'Te sens-tu motivé·e en ce moment ?', positiveIsGood: true },
   { key: 'ressources', label: 'Penses-tu avoir les ressources nécessaires pour atteindre tes objectifs ?', positiveIsGood: true },
   { key: 'visionAvenir', label: 'As-tu une vision globalement positive de l’avenir ?', positiveIsGood: true },
@@ -29,6 +31,25 @@ const QUESTIONS: Array<{ key: keyof MotivationJournalDTO; label: string; positiv
   { key: 'entretienPret', label: 'Te sens-tu prêt·e à passer un entretien avec un employeur ?', positiveIsGood: true },
   { key: 'besoinAideCV', label: 'As-tu besoin d’aide pour ton CV et/ou ta lettre de motivation ?', positiveIsGood: false, infoOnly: true },
 ];
+
+// v17.4 — Jeu de questions adapté lycéens (orientation post-bac)
+const QUESTIONS_LYCEEN: Array<QuestionMeta> = [
+  { key: 'motivation', label: 'Te sens-tu motivé·e en ce moment dans ta scolarité ?', positiveIsGood: true },
+  { key: 'ressources', label: 'As-tu une idée de ce que tu veux faire plus tard ?', positiveIsGood: true },
+  { key: 'visionAvenir', label: 'Imagines-tu ton avenir professionnel de manière positive ?', positiveIsGood: true },
+  { key: 'stress', label: 'Es-tu stressé·e à l’idée de devoir choisir ton orientation ?', positiveIsGood: false },
+  { key: 'decourage', label: 'As-tu peur de te tromper de voie ?', positiveIsGood: false },
+  { key: 'visionPro', label: 'Te sens-tu bien accompagné·e dans ta réflexion d’orientation ?', positiveIsGood: true },
+  { key: 'entretienPret', label: 'Connais-tu des métiers concrets qui correspondent à ce que tu fais en cours ?', positiveIsGood: true },
+  { key: 'besoinAideCV', label: 'As-tu besoin d’aide pour comprendre les filières post-bac ?', positiveIsGood: false, infoOnly: true },
+];
+
+function questionsFor(journal: MotivationJournalDTO | undefined, userData: { situation?: string } | undefined | null): Array<QuestionMeta> {
+  const set = journal?.questionSet ?? (userData?.situation === 'lyceen' ? 'lyceen' : 'default');
+  return set === 'lyceen' ? QUESTIONS_LYCEEN : QUESTIONS_DEFAULT;
+}
+
+const QUESTIONS: Array<QuestionMeta> = QUESTIONS_DEFAULT;
 
 const SCORE_THRESHOLDS = {
   green: 70,
@@ -405,7 +426,7 @@ export function MotivationDetailCard({ uid, journal: externalJournal }: { uid: s
             Le jeune n&apos;a pas encore complété son journal.
           </div>
         )}
-        {!loading && latest && QUESTIONS.map(q => (
+        {!loading && latest && questionsFor(latest, userData).map(q => (
           <DetailRow
             key={q.key as string}
             label={q.label}

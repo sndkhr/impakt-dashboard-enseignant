@@ -226,6 +226,8 @@ export interface MotivationJournalDTO {
   id: string;
   createdAt: string | null;
   score: number;
+  /** v17.4 — "lyceen" | "default" | null (null = ancien journal pre-v17.4) */
+  questionSet?: string | null;
   motivation: MotivationAnswerDTO | null;
   ressources: MotivationAnswerDTO | null;
   visionAvenir: MotivationAnswerDTO | null;
