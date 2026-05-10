@@ -424,7 +424,7 @@ export function MotivationDetailCard({ uid, journal: externalJournal }: { uid: s
             Le jeune n&apos;a pas encore complété son journal.
           </div>
         )}
-        {!loading && latest && questionsFor(latest, userData).map(q => (
+        {!loading && latest && questionsFor(latest, undefined).map(q => (
           <DetailRow
             key={q.key as string}
             label={q.label}
