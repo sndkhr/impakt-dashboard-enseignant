@@ -248,6 +248,31 @@ export async function listMotivationJournalsAPI(
   return response.json();
 }
 
+// ====== SATISFACTION SURVEYS (v17.4) ======
+
+export interface SatisfactionSurveyDTO {
+  id: string;
+  createdAt: string | null;
+  score: number;
+  canImagineJob: boolean | null;
+  wantUseTerminale: boolean | null;
+  wouldReassure: boolean | null;
+  learnedSelf: boolean | null;
+  couldHelp: boolean | null;
+  wouldShare: boolean | null;
+}
+
+export async function listSatisfactionSurveysAPI(
+  token: string,
+  jeuneUid: string
+): Promise<{ surveys: SatisfactionSurveyDTO[]; count: number; currentScore: number | null; lastCompletedAt: string | null }> {
+  const response = await fetch(`${API_URL}/satisfaction/by-jeune/${jeuneUid}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`Erreur ${response.status}`);
+  return response.json();
+}
+
 // ====== RDV NOTIFICATIONS (Phase 2) ======
 
 export interface RdvNotification {

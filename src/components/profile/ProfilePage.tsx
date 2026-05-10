@@ -23,6 +23,7 @@ import { useAuth } from "@/lib/auth";
 import { useNav } from "@/lib/navigation";
 import RdvTab from "@/components/profile/RdvTab";
 import MotivationSection, { MotivationTabContent, MotivationStatusPill } from "@/components/profile/MotivationSection";
+import SatisfactionSection from "@/components/profile/SatisfactionSection";
 import { downloadProfilePdf } from "@/lib/profilePdfTemplate";
 
 /* ============================================================
@@ -1737,6 +1738,11 @@ export default function ProfilePage() {
 
                 {isJobSeeker && d.uid && (
                   <MotivationSection uid={d.uid} userData={d} onSeeAll={() => setTab('motivation')} />
+                )}
+
+                {/* v17.4 — Questionnaire de satisfaction (test lycée mai 2026) */}
+                {d.uid && (
+                  <SatisfactionSection uid={d.uid} />
                 )}
 
 
