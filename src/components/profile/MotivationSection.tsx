@@ -44,9 +44,32 @@ const QUESTIONS_LYCEEN: Array<QuestionMeta> = [
   { key: 'besoinAideCV', label: 'As-tu besoin d’aide pour comprendre les filières post-bac ?', positiveIsGood: false, infoOnly: true },
 ];
 
+// v17.6 — Actif en reconversion (5 questions ; 3 cases du schéma non listées).
+const QUESTIONS_ACTIF_RECONVERSION: Array<QuestionMeta> = [
+  { key: 'decourage', label: 'Avez-vous pris la décision de vous reconvertir ?', positiveIsGood: true, infoOnly: true },
+  { key: 'ressources', label: 'Pensez-vous avoir les moyens nécessaires pour réaliser une reconversion professionnelle dans les mois à venir ?', positiveIsGood: true },
+  { key: 'visionPro', label: 'Êtes-vous actuellement accompagné·e dans votre reconversion professionnelle ?', positiveIsGood: true, infoOnly: true },
+  { key: 'stress', label: 'Êtes-vous stressé·e par le fait de quitter votre travail actuel ?', positiveIsGood: false },
+  { key: 'besoinAideCV', label: 'Avez-vous besoin d’aide pour découvrir des formations professionnelles et les démarches ?', positiveIsGood: false, infoOnly: true },
+];
+
+// v17.6 — Actif curiosité (5 questions).
+const QUESTIONS_ACTIF_CURIOSITE: Array<QuestionMeta> = [
+  { key: 'motivation', label: 'Êtes-vous heureux·se dans votre travail ?', positiveIsGood: true },
+  { key: 'stress', label: 'Êtes-vous stressé·e par votre situation professionnelle ?', positiveIsGood: false },
+  { key: 'besoinAideCV', label: 'Avez-vous déjà pensé à vous reconvertir ?', positiveIsGood: false, infoOnly: true },
+  { key: 'visionPro', label: 'Voyez-vous votre avenir professionnel de façon positive ?', positiveIsGood: true },
+  { key: 'decourage', label: 'Avez-vous envie de quitter votre travail dans les mois à venir ?', positiveIsGood: false },
+];
+
 function questionsFor(journal: MotivationJournalDTO | undefined, userData: { situation?: string } | undefined | null): Array<QuestionMeta> {
   const set = journal?.questionSet ?? (userData?.situation === 'lyceen' ? 'lyceen' : 'default');
-  return set === 'lyceen' ? QUESTIONS_LYCEEN : QUESTIONS_DEFAULT;
+  switch (set) {
+    case 'lyceen':             return QUESTIONS_LYCEEN;
+    case 'actif_reconversion': return QUESTIONS_ACTIF_RECONVERSION;
+    case 'actif_curiosite':    return QUESTIONS_ACTIF_CURIOSITE;
+    default:                   return QUESTIONS_DEFAULT;
+  }
 }
 
 const SCORE_THRESHOLDS = {
