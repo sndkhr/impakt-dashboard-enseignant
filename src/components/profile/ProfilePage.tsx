@@ -904,8 +904,32 @@ export default function ProfilePage() {
     const dispos = Array.isArray(d.dispoFormation) ? d.dispoFormation : (d.dispoFormation ? [d.dispoFormation] : []);
     const dispoStr = dispos.map((v: string) => dispoLabels[v] || v).join(', ');
     const exps = (d.experiencesPro || []).map((e: any) => `${e.duree || ''} - ${e.label || e.domaineLabel || ''}`).join(' | ');
-    const careerPaths = (d.orientationLLM?.careerPaths || []).map((p: any) => p.name).join(', ');
-    const topMet = (d.topMetiers || []).slice(0, 10).map((m: any, i: number) => `${i + 1}. ${typeof m === 'string' ? m : (m.title || '')}`).join(' | ');
+    // v17.6 — données enrichies : RIASEC, justification par métier, chemins, réponses quiz
+    const llm: any = d.orientationLLM || {};
+    const rp: any = d.riasecProfile || d.orientationScore?.riasec || {};
+    const stripB = (s: any) => String(s ?? '').replace(/[{}]/g, '').trim();
+    const riasecStr = ['R', 'I', 'A', 'S', 'E', 'C'].map(k => `${k}=${rp[k] ?? 0}`).join(', ');
+
+    const top10titles: string[] = (Array.isArray(llm.top10_titles) && llm.top10_titles.length)
+      ? llm.top10_titles
+      : (d.topMetiers || []).map((m: any) => typeof m === 'string' ? m : (m.title || ''));
+    const top10ids: any[] = llm.top10_ids || [];
+    const jobRows: [string, any][] = top10titles.slice(0, 10).map((t: string, i: number): [string, any] => {
+      const id = top10ids[i];
+      const why = id ? stripB((llm.justifications || {})[id]) : '';
+      const chemin = id ? (llm.careerPathByCareerID || {})[id] : '';
+      return [`Métier ${i + 1}`, `${stripB(t)}${chemin ? ` [${chemin}]` : ''}${why ? ` — ${why}` : ''}`];
+    });
+    const pathRows: [string, any][] = (llm.careerPaths || []).map((p: any): [string, any] => [`Chemin — ${p.name}`, stripB(p.description || '')]);
+
+    const acts = d.activity || [];
+    const qa = acts.filter((a: any) => a.type === 'quiz' && a.action === 'question_answered');
+    const roomAns = (n: number) => qa
+      .filter((a: any) => a.detail === `room${n}` || a.detail === `Room ${n}`)
+      .sort((a: any, b: any) => (a.metadata?.questionIndex || 0) - (b.metadata?.questionIndex || 0));
+    const answerRows: [string, any][] = [1, 2, 3].flatMap((n: number) =>
+      roomAns(n).map((a: any, i: number): [string, any] =>
+        [`Room ${n} — Q${i + 1}`, `${a.metadata?.question || ''} → ${a.metadata?.answer || ''}`]));
 
     const rows: [string, any][] = [
       ['Prénom', d.prenom || ''],
@@ -926,17 +950,20 @@ export default function ProfilePage() {
       ['Expériences', exps],
       ['Métier actuel', d.metierActuel || ''],
       ['Disponibilité formation', dispoStr],
+      ['Profil RIASEC', riasecStr],
       ['Quiz démarré', d.quizStarted ? 'Oui' : 'Non'],
       ['Quiz complété', d.quizCompleted ? 'Oui' : 'Non'],
       ['Progression quiz', `${d.quizProgress || 0}%`],
-      ['Top 10 métiers', topMet],
-      ['Secteurs identifiés (Claude)', careerPaths],
+      ['Analyse du profil (IA)', stripB(llm.profileAnalysis || '')],
+      ...jobRows,
+      ...pathRows,
       ['Dernière connexion', d.lastActive ? new Date(d.lastActive).toLocaleDateString('fr-FR') : ''],
       ['Temps total dans l\'app (s)', d.totalAppTime || 0],
       ['Connexions', d.connexions || 0],
       ['Offres matchées (total)', (d.matchedJobOffers || []).length],
       ['Offres vues', (d.matchedJobOffers || []).filter((o: any) => o.viewed).length],
       ['Offres en favoris', (d.matchedJobOffers || []).filter((o: any) => o.favorited).length],
+      ...answerRows,
     ];
     const escape = (v: any) => {
       const s = String(v ?? '');
