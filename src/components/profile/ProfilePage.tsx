@@ -1224,7 +1224,8 @@ export default function ProfilePage() {
     { id: 'accueil', label: 'Accueil' },
     { id: 'metiers', label: 'Métiers recommandés' },
     { id: 'parcours', label: 'Parcours', badge: formationRequests.length > 0 ? formationRequests.length : undefined },
-    ...(isJobSeeker ? [{ id: 'motivation', label: 'Motivation' }] : []),
+    // v17.6 — onglet Motivation pour TOUS les profils (avant : demandeurs d'emploi uniquement)
+    { id: 'motivation', label: 'Motivation' },
     { id: 'informations', label: 'Informations' },
     { id: 'rdv', label: 'Rendez-vous' },
   ];
@@ -1402,7 +1403,7 @@ export default function ProfilePage() {
                 <Badge type={stType}>{stLabel}</Badge>
               </div>
             </div>
-            {isJobSeeker && d.uid && <MotivationStatusPill uid={d.uid} userData={d} onClick={() => setTab('motivation')} />}
+            {d.uid && <MotivationStatusPill uid={d.uid} userData={d} onClick={() => setTab('motivation')} />}
             <button
               onClick={loadDetail}
               disabled={refreshing}
@@ -2737,8 +2738,8 @@ export default function ProfilePage() {
             );
           })()}
 
-          {/* ============ TAB: MOTIVATION (demandeurs d'emploi uniquement) ============ */}
-          {tab === 'motivation' && isJobSeeker && d.uid && (
+          {/* ============ TAB: MOTIVATION (tous les profils — v17.6) ============ */}
+          {tab === 'motivation' && d.uid && (
             <MotivationTabContent uid={d.uid} userData={d} />
           )}
 
