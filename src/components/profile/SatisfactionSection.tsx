@@ -9,7 +9,9 @@ import { useAuth } from "@/lib/auth";
 // satisfaction (test lycée mai 2026).
 // =====================================================
 
-const QUESTIONS: Array<{ key: keyof SatisfactionSurveyDTO; label: string }> = [
+type SatQ = { key: keyof SatisfactionSurveyDTO; label: string };
+
+const QUESTIONS_LYCEEN: Array<SatQ> = [
   { key: 'canImagineJob',    label: "Y a-t-il un métier dans ton top 10 dans lequel tu pourrais t'imaginer plus tard ?" },
   { key: 'wantUseTerminale', label: "Aimerais-tu pouvoir utiliser Impakt en terminale, au moment de choisir ton orientation sur Parcoursup ?" },
   { key: 'wouldReassure',    label: "Est-ce que ça te rassurerait de pouvoir utiliser l'app au moment de ton choix d'orientation ?" },
@@ -17,6 +19,46 @@ const QUESTIONS: Array<{ key: keyof SatisfactionSurveyDTO; label: string }> = [
   { key: 'couldHelp',        label: "Penses-tu que l'app pourrait t'aider ?" },
   { key: 'wouldShare',       label: "Pourrais-tu partager l'app avec un pote ?" },
 ];
+
+// v17.6 — Jeux par profil (5 questions ; learnedSelf non listé car non posé).
+const QUESTIONS_ETUDIANT: Array<SatQ> = [
+  { key: 'canImagineJob',    label: "Y a-t-il un métier dans ton top 10 dans lequel tu pourrais t'imaginer ?" },
+  { key: 'wantUseTerminale', label: "L'app t'a-t-elle aidé·e à y voir plus clair sur la suite de tes études ?" },
+  { key: 'wouldReassure',    label: "Est-ce que ça te rassure sur ton orientation ?" },
+  { key: 'couldHelp',        label: "Penses-tu que l'app peut t'aider à affiner ton projet ?" },
+  { key: 'wouldShare',       label: "Recommanderais-tu l'app à un·e autre étudiant·e ?" },
+];
+const QUESTIONS_ACTIF_RECONVERSION: Array<SatQ> = [
+  { key: 'canImagineJob',    label: "Y a-t-il un métier dans votre top 10 dans lequel vous pourriez vous reconvertir ?" },
+  { key: 'wantUseTerminale', label: "L'app vous a-t-elle fait découvrir un métier auquel vous n'aviez pas pensé ?" },
+  { key: 'wouldReassure',    label: "Vous sentez-vous plus confiant·e pour votre reconversion après l'avoir utilisée ?" },
+  { key: 'couldHelp',        label: "Pensez-vous que l'app peut vous aider à concrétiser votre reconversion ?" },
+  { key: 'wouldShare',       label: "Recommanderiez-vous l'app à quelqu'un qui veut se reconvertir ?" },
+];
+const QUESTIONS_ACTIF_CURIOSITE: Array<SatQ> = [
+  { key: 'canImagineJob',    label: "Y a-t-il un métier dans votre top 10 que vous aimeriez explorer ?" },
+  { key: 'wantUseTerminale', label: "L'app vous a-t-elle fait découvrir des métiers que vous ne connaissiez pas ?" },
+  { key: 'wouldReassure',    label: "Avez-vous appris quelque chose sur vous-même et vos envies ?" },
+  { key: 'couldHelp',        label: "Pensez-vous que l'app pourrait vous être utile à l'avenir ?" },
+  { key: 'wouldShare',       label: "Recommanderiez-vous l'app à un·e collègue ?" },
+];
+const QUESTIONS_SANSEMPLOI: Array<SatQ> = [
+  { key: 'canImagineJob',    label: "Y a-t-il un métier dans votre top 10 dans lequel vous pourriez vous projeter ?" },
+  { key: 'wantUseTerminale', label: "L'app vous a-t-elle fait découvrir des métiers qui recrutent près de chez vous ?" },
+  { key: 'wouldReassure',    label: "Vous sentez-vous plus confiant·e dans votre recherche après l'app ?" },
+  { key: 'couldHelp',        label: "Pensez-vous que l'app peut vous aider à retrouver un emploi ?" },
+  { key: 'wouldShare',       label: "Recommanderiez-vous l'app à un·e autre demandeur d'emploi ?" },
+];
+
+function satQuestionsFor(survey: SatisfactionSurveyDTO | undefined): Array<SatQ> {
+  switch (survey?.questionSet) {
+    case 'etudiant':           return QUESTIONS_ETUDIANT;
+    case 'actif_reconversion': return QUESTIONS_ACTIF_RECONVERSION;
+    case 'actif_curiosite':    return QUESTIONS_ACTIF_CURIOSITE;
+    case 'sansEmploi':         return QUESTIONS_SANSEMPLOI;
+    default:                   return QUESTIONS_LYCEEN;
+  }
+}
 
 interface Props {
   uid: string;
@@ -146,7 +188,7 @@ export default function SatisfactionSection({ uid }: Props) {
 
           {/* Réponses */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {QUESTIONS.map(q => {
+            {satQuestionsFor(latest).map(q => {
               const val = latest[q.key] as boolean | null;
               return (
                 <div key={q.key as string}

@@ -254,6 +254,7 @@ export interface SatisfactionSurveyDTO {
   id: string;
   createdAt: string | null;
   score: number;
+  questionSet?: string | null;   // v17.6 — jeu de questions par profil
   canImagineJob: boolean | null;
   wantUseTerminale: boolean | null;
   wouldReassure: boolean | null;
