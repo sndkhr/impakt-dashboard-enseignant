@@ -2645,14 +2645,16 @@ export default function ProfilePage() {
             const offers = d.matchedJobOffers || [];
             const viewedCount = offers.filter((o: any) => o.viewed).length;
             const favCount = offers.filter((o: any) => o.favorited).length;
+            const postulerCount = offers.filter((o: any) => o.postuler).length;
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Petits compteurs en haut */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
                     { label: 'Offres matchées', val: offers.length, color: V.accent },
                     { label: 'Vues', val: viewedCount, color: V.green },
                     { label: 'En favoris', val: favCount, color: V.pink },
+                    { label: 'Ont postulé', val: postulerCount, color: '#2563eb' },
                   ].map((k, i) => (
                     <div key={i} style={{
                       background: 'rgba(255,255,255,0.52)',
@@ -2687,6 +2689,7 @@ export default function ProfilePage() {
                             <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, color: V.t5, textTransform: 'uppercase', letterSpacing: .3, borderBottom: `1px solid ${V.border}` }}>Salaire</th>
                             <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: V.t5, textTransform: 'uppercase', letterSpacing: .3, borderBottom: `1px solid ${V.border}` }}>Vu</th>
                             <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: V.t5, textTransform: 'uppercase', letterSpacing: .3, borderBottom: `1px solid ${V.border}` }}>Favori</th>
+                            <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: V.t5, textTransform: 'uppercase', letterSpacing: .3, borderBottom: `1px solid ${V.border}` }}>Postulé</th>
                             <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 10, fontWeight: 700, color: V.t5, textTransform: 'uppercase', letterSpacing: .3, borderBottom: `1px solid ${V.border}` }}>Annonce</th>
                           </tr>
                         </thead>
@@ -2724,6 +2727,17 @@ export default function ProfilePage() {
                                   <span style={{ fontSize: 14, color: V.pink }} title={o.favoritedAt ? new Date(o.favoritedAt).toLocaleString('fr-FR') : ''}>★</span>
                                 ) : (
                                   <span style={{ fontSize: 14, color: V.t3 }}>☆</span>
+                                )}
+                              </td>
+                              <td style={{ padding: '12px 12px', verticalAlign: 'top', textAlign: 'center' }}>
+                                {o.postuler ? (
+                                  <span style={{
+                                    display: 'inline-block', fontSize: 9.5, fontWeight: 700, padding: '3px 9px', borderRadius: 999,
+                                    background: 'rgba(37,99,235,0.12)', color: '#2563eb',
+                                    textTransform: 'uppercase', letterSpacing: .3,
+                                  }} title={o.postulerAt ? new Date(o.postulerAt).toLocaleString('fr-FR') : ''}>Postulé</span>
+                                ) : (
+                                  <span style={{ fontSize: 13, color: V.t3 }}>—</span>
                                 )}
                               </td>
                               <td style={{ padding: '12px 12px', verticalAlign: 'top', textAlign: 'right' }}>
