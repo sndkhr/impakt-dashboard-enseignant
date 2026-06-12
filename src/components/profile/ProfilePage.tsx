@@ -1504,6 +1504,7 @@ export default function ProfilePage() {
                     {[
                       { label: 'Exporter en PDF', desc: 'Fiche imprimable', onClick: () => { handleExportPDF(); setShowExportMenu(false); } },
                       { label: 'Exporter en CSV', desc: 'Tableur (Excel, Numbers)', onClick: () => { handleExportCSV(); setShowExportMenu(false); } },
+                      { label: 'Exporter en JSON', desc: 'Données complètes (tri Claude, pool, trace)', onClick: () => { handleExport(); setShowExportMenu(false); } },
                     ].map((opt, i) => (
                       <button
                         key={i}
