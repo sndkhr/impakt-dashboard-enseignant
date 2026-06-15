@@ -813,20 +813,21 @@ function MotivationAlerts({ journal }: { journal: MotivationJournalDTO }) {
   // ont un autre sens (besoinAideCV = aide à l'orientation et non CV ; entretienPret
   // = lien cours↔métier ; visionPro = sentiment d'être accompagné ; ressources =
   // clarté du projet). On adapte donc le texte au lycéen.
-  const isLyceen = (journal.questionSet || '').startsWith('lyceen');
+  const qs = journal.questionSet || '';
+  const isJeune = qs.startsWith('lyceen') || qs.startsWith('etudiant');
 
   if (journal.besoinAideCV?.value) {
-    alerts.push({ kind: 'info', text: isLyceen
+    alerts.push({ kind: 'info', text: isJeune
       ? "A exprimé un besoin d'aide sur son orientation"
       : "Demande de l'aide pour son CV / lettre de motivation" });
   }
   if (journal.entretienPret?.value === false) {
-    alerts.push({ kind: 'warning', text: isLyceen
+    alerts.push({ kind: 'warning', text: isJeune
       ? "Ne fait pas encore le lien entre ses cours et un métier"
       : "Ne se sent pas prêt à passer un entretien" });
   }
   if (journal.decourage?.value) {
-    alerts.push({ kind: 'critical', text: isLyceen
+    alerts.push({ kind: 'critical', text: isJeune
       ? "Se sent découragé·e ou dépassé·e par ses choix d'orientation"
       : "Se sent découragé par sa situation" });
   }
@@ -836,17 +837,17 @@ function MotivationAlerts({ journal }: { journal: MotivationJournalDTO }) {
     alerts.push({ kind: 'warning', text: "Stress modéré en ce moment" });
   }
   if (journal.motivation?.value === false) {
-    alerts.push({ kind: 'critical', text: isLyceen ? "Pas motivé·e dans sa scolarité en ce moment" : "Pas motivé en ce moment" });
+    alerts.push({ kind: 'critical', text: isJeune ? "Pas motivé·e dans sa scolarité en ce moment" : "Pas motivé en ce moment" });
   } else if (journal.motivation?.value && journal.motivation.level === 'legere') {
     alerts.push({ kind: 'warning', text: "Motivation faible cette semaine" });
   }
   if (journal.ressources?.value === false) {
-    alerts.push({ kind: 'warning', text: isLyceen
+    alerts.push({ kind: 'warning', text: isJeune
       ? "N'a pas encore d'idée claire de son projet"
       : "N'estime pas avoir les ressources pour atteindre ses objectifs" });
   }
   if (journal.visionPro?.value === false) {
-    alerts.push({ kind: 'warning', text: isLyceen
+    alerts.push({ kind: 'warning', text: isJeune
       ? "Ne se sent pas accompagné·e dans son orientation"
       : "Vision négative de son avenir professionnel" });
   }
