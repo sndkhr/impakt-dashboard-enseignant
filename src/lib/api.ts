@@ -226,8 +226,10 @@ export interface MotivationJournalDTO {
   id: string;
   createdAt: string | null;
   score: number;
-  /** v17.4 — "lyceen" | "default" | null (null = ancien journal pre-v17.4) */
+  /** v17.4 — "lyceen" | "lyceen_w1..w6" | "default" | null (null = ancien journal pre-v17.4) */
   questionSet?: string | null;
+  /** v17.10 — libellés réellement posés cette semaine-là (journal hebdo lycéen qui tourne) */
+  questionLabels?: Record<string, string> | null;
   motivation: MotivationAnswerDTO | null;
   ressources: MotivationAnswerDTO | null;
   visionAvenir: MotivationAnswerDTO | null;

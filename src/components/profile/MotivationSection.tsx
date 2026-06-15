@@ -450,7 +450,9 @@ export function MotivationDetailCard({ uid, journal: externalJournal }: { uid: s
         {!loading && latest && questionsFor(latest, undefined).map(q => (
           <DetailRow
             key={q.key as string}
-            label={q.label}
+            // v17.10 — journal hebdo qui TOURNE (lycéens) : on affiche la question
+            // RÉELLEMENT posée cette semaine-là (questionLabels), repli sur la table.
+            label={latest.questionLabels?.[q.key as string] ?? q.label}
             answer={latest[q.key] as MotivationAnswerDTO | null}
             positiveIsGood={q.positiveIsGood}
             infoOnly={q.infoOnly}
@@ -807,15 +809,26 @@ function WeekPicker({ journals, selectedIdx, onSelect, open, onToggle, loading }
 function MotivationAlerts({ journal }: { journal: MotivationJournalDTO }) {
   type Alert = { kind: 'critical' | 'warning' | 'info'; text: string };
   const alerts: Alert[] = [];
+  // v17.10 — Les signaux dépendent du parcours : pour un lycéen, certaines cases
+  // ont un autre sens (besoinAideCV = aide à l'orientation et non CV ; entretienPret
+  // = lien cours↔métier ; visionPro = sentiment d'être accompagné ; ressources =
+  // clarté du projet). On adapte donc le texte au lycéen.
+  const isLyceen = (journal.questionSet || '').startsWith('lyceen');
 
   if (journal.besoinAideCV?.value) {
-    alerts.push({ kind: 'info', text: "Demande de l'aide pour son CV / lettre de motivation" });
+    alerts.push({ kind: 'info', text: isLyceen
+      ? "A exprimé un besoin d'aide sur son orientation"
+      : "Demande de l'aide pour son CV / lettre de motivation" });
   }
   if (journal.entretienPret?.value === false) {
-    alerts.push({ kind: 'warning', text: "Ne se sent pas prêt à passer un entretien" });
+    alerts.push({ kind: 'warning', text: isLyceen
+      ? "Ne fait pas encore le lien entre ses cours et un métier"
+      : "Ne se sent pas prêt à passer un entretien" });
   }
   if (journal.decourage?.value) {
-    alerts.push({ kind: 'critical', text: "Se sent découragé par sa situation" });
+    alerts.push({ kind: 'critical', text: isLyceen
+      ? "Se sent découragé·e ou dépassé·e par ses choix d'orientation"
+      : "Se sent découragé par sa situation" });
   }
   if (journal.stress?.value && journal.stress.level === 'forte') {
     alerts.push({ kind: 'critical', text: "Stress important en ce moment" });
@@ -823,15 +836,19 @@ function MotivationAlerts({ journal }: { journal: MotivationJournalDTO }) {
     alerts.push({ kind: 'warning', text: "Stress modéré en ce moment" });
   }
   if (journal.motivation?.value === false) {
-    alerts.push({ kind: 'critical', text: "Pas motivé en ce moment" });
+    alerts.push({ kind: 'critical', text: isLyceen ? "Pas motivé·e dans sa scolarité en ce moment" : "Pas motivé en ce moment" });
   } else if (journal.motivation?.value && journal.motivation.level === 'legere') {
     alerts.push({ kind: 'warning', text: "Motivation faible cette semaine" });
   }
   if (journal.ressources?.value === false) {
-    alerts.push({ kind: 'warning', text: "N'estime pas avoir les ressources pour atteindre ses objectifs" });
+    alerts.push({ kind: 'warning', text: isLyceen
+      ? "N'a pas encore d'idée claire de son projet"
+      : "N'estime pas avoir les ressources pour atteindre ses objectifs" });
   }
   if (journal.visionPro?.value === false) {
-    alerts.push({ kind: 'warning', text: "Vision négative de son avenir professionnel" });
+    alerts.push({ kind: 'warning', text: isLyceen
+      ? "Ne se sent pas accompagné·e dans son orientation"
+      : "Vision négative de son avenir professionnel" });
   }
   if (journal.visionAvenir?.value === false) {
     alerts.push({ kind: 'warning', text: "Vision négative de l'avenir en général" });
