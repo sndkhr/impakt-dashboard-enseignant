@@ -458,6 +458,21 @@ export function MotivationDetailCard({ uid, journal: externalJournal }: { uid: s
             infoOnly={q.infoOnly}
           />
         ))}
+        {/* v18 — métier que le lycéen a dit vouloir explorer (saisi si "lien métier" = oui) */}
+        {!loading && latest?.decouverteMetier && (
+          <div style={{
+            marginTop: 10, padding: "10px 12px", borderRadius: 10,
+            background: "linear-gradient(135deg, rgba(127,73,151,0.08), rgba(232,67,147,0.08))",
+            border: "1px solid rgba(127,73,151,0.18)",
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#7f4997", textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 4 }}>
+              Métier qui l&apos;attire
+            </div>
+            <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--premium-text)" }}>
+              {latest.decouverteMetier}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

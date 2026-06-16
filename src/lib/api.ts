@@ -230,6 +230,8 @@ export interface MotivationJournalDTO {
   questionSet?: string | null;
   /** v17.10 — libellés réellement posés cette semaine-là (journal hebdo lycéen qui tourne) */
   questionLabels?: Record<string, string> | null;
+  /** v18 — métier que le lycéen a dit vouloir explorer (saisi si "lien métier" = oui) */
+  decouverteMetier?: string | null;
   motivation: MotivationAnswerDTO | null;
   ressources: MotivationAnswerDTO | null;
   visionAvenir: MotivationAnswerDTO | null;
