@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import { V, G } from "@/lib/theme";
 import { dashAPI, listFormationRequestsAPI, FormationRequest } from "@/lib/api";
 import { DEMO_UID, demoUserDetail } from "@/lib/demoStudent";
+import { computeEngagementScore, computeCompositeScore, motivLevelFromScore } from "@/lib/motivationScore";
 import Badge from "@/components/ui/Badge";
 import Ic from "@/components/ui/Icons";
 import { CountUp, SpotlightCard } from "@/components/ui/PremiumMotion";
@@ -245,7 +246,9 @@ function buildCandidateSummary(d: any): string {
     const lower = diploma.toLowerCase();
     // Élève encore scolarisé → "actuellement en <classe>" (pas "titulaire d'un …").
     const isStudent = d.situation === 'lyceen' || d.situation === 'collegien' || d.situation === 'etudiant';
-    if (isStudent) identity += `, actuellement en ${d.classe || diploma}`;
+    const moyMap: Record<string, string> = { moins_8: 'moins de 8/20', '8_10': 'entre 8 et 10/20', '10_12': 'entre 10 et 12/20', '12_14': 'entre 12 et 14/20', '14_16': 'entre 14 et 16/20', '16_plus': 'plus de 16/20' };
+    const moy = d.moyenneGenerale ? (moyMap[d.moyenneGenerale] || d.moyenneGenerale) : null;
+    if (isStudent) identity += `, actuellement en ${d.classe || diploma}${moy ? ` (moyenne ${moy})` : ''}`;
     else if (lower.startsWith('niveau')) identity += `, ${lower}`;
     else identity += `, titulaire d'un ${diploma}`;
   }
@@ -327,6 +330,16 @@ function buildCandidateSummary(d: any): string {
     }
     if (tops.length > 0) {
       out.push(`Métiers les plus alignés avec son profil : ${tops.join(', ')}.`);
+    }
+  }
+
+  // Motivation actuelle (score composite — cohérent avec la pastille de la fiche).
+  if (typeof d.lastMotivationScore === 'number') {
+    const comp = computeCompositeScore(d.lastMotivationScore, computeEngagementScore(d).total);
+    if (comp != null) {
+      const lvl = motivLevelFromScore(comp);
+      const word = lvl === 'forte' ? 'bonne' : lvl === 'moderee' ? 'modérée' : 'fragile';
+      out.push(`Sa motivation actuelle est ${word} (${comp}/100)${lvl === 'faible' ? ' — un accompagnement serait bénéfique' : ''}.`);
     }
   }
 

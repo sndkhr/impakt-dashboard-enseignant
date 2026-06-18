@@ -113,7 +113,7 @@ export function demoListUser(): User {
     connexions: 11,
     totalAppTime: 2040,
     riasecProfile: RIASEC,
-    lastMotivationScore: 32,
+    lastMotivationScore: 20,
     lastMotivationAt: isoDaysAgo(4),
   };
 }
@@ -242,7 +242,7 @@ export function demoUserDetail(): UserDetail {
 export function demoMotivationJournals(): MotivationJournalDTO[] {
   const ans = (value: boolean, level: MotivationAnswerDTO['level'] = null): MotivationAnswerDTO => ({ value, level });
   // du plus récent au plus ancien
-  const scores = [32, 38, 45, 30, 52, 60, 48, 35, 28, 55, 68, 72, 50, 42, 58, 55];
+  const scores = [20, 38, 45, 30, 52, 60, 48, 35, 28, 55, 68, 72, 50, 42, 58, 55];
   return scores.map((s, i): MotivationJournalDTO => ({
     id: `demo_journal_${i}`,
     createdAt: isoDaysAgo(i * 11 + 4),
