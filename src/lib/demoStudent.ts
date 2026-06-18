@@ -109,8 +109,37 @@ function demoActivity() {
   const acts: Array<{ type: string; action: string; detail: string | null; metadata?: Record<string, unknown> | null; timestamp: string }> = [];
   // Quelques actions variées récentes (>7 j → ne gonflent pas l'engagement).
   acts.push({ type: 'screen', action: 'tab_opened', detail: 'top10', timestamp: isoDaysAgo(12) });
-  acts.push({ type: 'metier', action: 'job_viewed', detail: 'éducateur/trice spécialisé/e', timestamp: isoDaysAgo(14) });
-  acts.push({ type: 'metier', action: 'job_viewed', detail: 'art-thérapeute', timestamp: isoDaysAgo(16) });
+  acts.push({ type: 'metier', action: 'job_viewed', detail: 'éducateur/trice spécialisé/e', metadata: { sector: 'pathway_search' }, timestamp: isoDaysAgo(14) });
+  acts.push({ type: 'metier', action: 'job_viewed', detail: 'art-thérapeute', metadata: { sector: 'pathway_search' }, timestamp: isoDaysAgo(16) });
+  // Réponses aux QUESTIONS du parcours (ce qu'elle a renseigné pour générer ses résultats).
+  acts.push({
+    type: 'formation', action: 'pathway_questions', detail: 'Éducatrice spécialisée', timestamp: isoDaysAgo(21),
+    metadata: {
+      'métier': 'Éducatrice spécialisée',
+      'diplôme en cours': 'Bac techno ST2S',
+      'filière': 'Technologique (ST2S)',
+      'spécialités': 'Sciences et techniques sanitaires et sociales',
+      'moyenne': '13/20',
+      'lieu': 'Île-de-France (93)',
+      'durée études': '3 ans',
+      'alternance': 'Oui',
+      'étranger': 'Non',
+    },
+  });
+  acts.push({
+    type: 'formation', action: 'pathway_questions', detail: 'Art-thérapeute', timestamp: isoDaysAgo(17),
+    metadata: {
+      'métier': 'Art-thérapeute',
+      'diplôme en cours': 'Bac techno ST2S',
+      'filière': 'Technologique (ST2S)',
+      'spécialités': 'Sciences et techniques sanitaires et sociales',
+      'moyenne': '13/20',
+      'lieu': 'Paris (75)',
+      'durée études': '5 ans',
+      'alternance': 'Non',
+      'étranger': 'Non',
+    },
+  });
   acts.push({
     type: 'formation', action: 'pathway_results', detail: 'Éducatrice spécialisée', timestamp: isoDaysAgo(20),
     metadata: {
