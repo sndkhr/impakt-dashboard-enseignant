@@ -1,13 +1,16 @@
 // =====================================================
 // Élève de DÉMO "en dur" — pour présentation (ministère).
 // N'existe pas en base : injectée côté front dans api.ts
-// (liste + fiche + motivation). Profil = fille, terminale
-// technologique, social + artistique, motivation fragile,
-// besoin d'aide en orientation. Tout est figé → zéro risque
-// le jour J (aucune dépendance live / Claude / réseau).
+// (liste + motivation + satisfaction) ET dans ProfilePage
+// (chargement de la fiche). Profil = fille, terminale techno,
+// social + artistique, motivation fragile, besoin d'aide en
+// orientation. Tout est figé → zéro risque le jour J
+// (aucune dépendance live / Claude / réseau).
+// PROFIL TÉMOIN COMPLET : toutes les sections sont remplies.
+// À RETIRER après la démo (cf. memory project_demo_student).
 // =====================================================
 import type { DashboardData, User, UserDetail } from '@/types';
-import type { MotivationJournalDTO, MotivationAnswerDTO } from './api';
+import type { MotivationJournalDTO, MotivationAnswerDTO, SatisfactionSurveyDTO } from './api';
 
 export const DEMO_UID = 'demo-eleve-lea-martin';
 
@@ -74,10 +77,14 @@ export function demoListUser(): User {
     prenom: 'Léa',
     nom: 'Lefèvre',
     age: 17,
-    ville: 'Lyon',
+    dateNaissance: '05/10/2008',
+    email: 'lea.lefevre@email.fr',
+    ville: 'Bobigny',
+    codeDepartement: '93',
     situation: 'lyceen',
     classe: 'Terminale ST2S',
     niveauEtudes: 'Terminale technologique',
+    isMinor: true,
     quizStarted: true,
     quizCompleted: true,
     quizProgress: 100,
@@ -96,7 +103,67 @@ export function demoListUser(): User {
   };
 }
 
-// Fiche détaillée (route /user/:uid).
+// Activité (sous-collection acts) : sert l'historique, le compteur de
+// réponses au quiz, et les parcours proposés.
+function demoActivity() {
+  const acts: Array<{ type: string; action: string; detail: string | null; metadata?: Record<string, unknown> | null; timestamp: string }> = [];
+  // Quelques actions variées récentes (>7 j → ne gonflent pas l'engagement).
+  acts.push({ type: 'screen', action: 'tab_opened', detail: 'top10', timestamp: isoDaysAgo(12) });
+  acts.push({ type: 'metier', action: 'job_viewed', detail: 'éducateur/trice spécialisé/e', timestamp: isoDaysAgo(14) });
+  acts.push({ type: 'metier', action: 'job_viewed', detail: 'art-thérapeute', timestamp: isoDaysAgo(16) });
+  acts.push({
+    type: 'formation', action: 'pathway_results', detail: 'Éducatrice spécialisée', timestamp: isoDaysAgo(20),
+    metadata: {
+      parcours_publics: [{ titre: 'Voie publique — Diplôme d\'État', etape1: 'Terminale ST2S (en cours)', etape2: 'Diplôme d\'État d\'Éducateur Spécialisé — 3 ans en IRTS', etape3: 'Premier poste : ASE, IME, foyer, MECS' }],
+      parcours_prives: [{ titre: 'Voie en alternance', etape1: 'Terminale ST2S (en cours)', etape2: 'DEES en alternance (école du travail social)', etape3: 'Insertion progressive en structure' }],
+    },
+  });
+  acts.push({ type: 'screen', action: 'tab_opened', detail: 'pathway', timestamp: isoDaysAgo(22) });
+  acts.push({ type: 'screen', action: 'tab_opened', detail: 'chat', timestamp: isoDaysAgo(25) });
+  // Réponses au quiz (au moment de la complétion, ~6 mois) : room1×8, room2×7, room3×6.
+  const rooms: Array<[string, number]> = [['room1', 8], ['room2', 7], ['room3', 6]];
+  let base = 176;
+  rooms.forEach(([room, n]) => {
+    for (let i = 0; i < n; i++) {
+      acts.push({ type: 'quiz', action: 'question_answered', detail: room, metadata: { questionIndex: i }, timestamp: isoDaysAgo(base) });
+      base -= 0.3;
+    }
+    base -= 2;
+  });
+  return acts;
+}
+
+// Parcours enregistrés (sous-collection pathways).
+function demoPathways() {
+  return [
+    {
+      id: 'demo_path_1',
+      type: 'public',
+      titre: "DE Éducateur Spécialisé (DEES)",
+      metier: 'Éducatrice spécialisée',
+      metierTitle: 'Éducatrice spécialisée',
+      savedAt: isoDaysAgo(18),
+      formations: [
+        { nom: 'Bac technologique ST2S', ecole: 'Lycée', ville: 'Bobigny', duree: 'En cours' },
+        { nom: "Diplôme d'État d'Éducateur Spécialisé (DEES)", ecole: 'IRTS Île-de-France', ville: 'Montrouge', duree: '3 ans' },
+      ],
+    },
+    {
+      id: 'demo_path_2',
+      type: 'privé',
+      titre: 'Art-thérapeute',
+      metier: 'Art-thérapeute',
+      metierTitle: 'Art-thérapeute',
+      savedAt: isoDaysAgo(15),
+      formations: [
+        { nom: 'Licence Arts plastiques ou Psychologie', ecole: 'Université Paris 8', ville: 'Saint-Denis', duree: '3 ans' },
+        { nom: "Certification d'Art-thérapeute (RNCP)", ecole: 'INECAT', ville: 'Paris', duree: '2 ans' },
+      ],
+    },
+  ];
+}
+
+// Fiche détaillée (chargée par ProfilePage via demoUserDetail()).
 export function demoUserDetail(): UserDetail {
   const base = demoListUser();
   return {
@@ -112,14 +179,14 @@ export function demoUserDetail(): UserDetail {
       antiDomaines: [],
       antiSector: null,
     },
-    // Champs lus en `any` par ProfilePage (résumé auto + top 10 + chemins).
+    pathways: demoPathways() as unknown as UserDetail['pathways'],
+    activity: demoActivity() as unknown as UserDetail['activity'],
+    // Champs lus en `any` par ProfilePage (résumé auto + top 10 + chemins + genre).
     ...( {
-      gender: 'femme',          // → le résumé auto se genre au féminin ("Elle", "intéressée")
+      gender: 'femme',          // → résumé auto + ligne "Genre" au féminin
       orientationLLM: ORIENTATION_LLM,
       top3Jobs: TOP10_TITLES,
     } as Record<string, unknown> ),
-    pathways: [],
-    activity: [],
   } as unknown as UserDetail;
 }
 
@@ -146,6 +213,22 @@ export function demoMotivationJournals(): MotivationJournalDTO[] {
     entretienPret: ans(s >= 52),            // fait le lien avec des métiers
     besoinAideCV: ans(true),                // a besoin d'aide pour les filières post-bac
   }));
+}
+
+// Questionnaire de satisfaction — rempli en POSITIF (profil témoin).
+export function demoSatisfactionSurveys(): SatisfactionSurveyDTO[] {
+  return [{
+    id: 'demo_satisfaction_1',
+    createdAt: isoDaysAgo(9),
+    score: 92,
+    questionSet: 'lyceen',
+    canImagineJob: true,
+    wantUseTerminale: true,
+    wouldReassure: true,
+    learnedSelf: true,
+    couldHelp: true,
+    wouldShare: true,
+  }];
 }
 
 // Injecte l'élève de démo en tête de la liste des élèves.

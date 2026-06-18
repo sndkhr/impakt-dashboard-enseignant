@@ -1,5 +1,5 @@
 import { DashboardData, UserDetail } from '@/types';
-import { DEMO_UID, demoUserDetail, demoMotivationJournals, withDemoStudent } from './demoStudent';
+import { DEMO_UID, demoUserDetail, demoMotivationJournals, demoSatisfactionSurveys, withDemoStudent } from './demoStudent';
 
 const API_URL = 'https://europe-west1-impakt-6c00e.cloudfunctions.net/dashboardAPI';
 // Alias exporté — utilisé par AdminUserProfile.tsx (port de la fiche admin)
@@ -282,6 +282,12 @@ export async function listSatisfactionSurveysAPI(
   token: string,
   jeuneUid: string
 ): Promise<{ surveys: SatisfactionSurveyDTO[]; count: number; currentScore: number | null; lastCompletedAt: string | null }> {
+  // Questionnaire de l'élève de démo : rempli en positif (figé).
+  if (jeuneUid === DEMO_UID) {
+    const surveys = demoSatisfactionSurveys();
+    return { surveys, count: surveys.length, currentScore: surveys[0]?.score ?? null, lastCompletedAt: surveys[0]?.createdAt ?? null };
+  }
+
   const response = await fetch(`${API_URL}/satisfaction/by-jeune/${jeuneUid}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });

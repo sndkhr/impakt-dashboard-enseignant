@@ -15,6 +15,7 @@
 import { useState, useEffect } from "react";
 import { V, G } from "@/lib/theme";
 import { dashAPI, listFormationRequestsAPI, FormationRequest } from "@/lib/api";
+import { DEMO_UID, demoUserDetail } from "@/lib/demoStudent";
 import Badge from "@/components/ui/Badge";
 import Ic from "@/components/ui/Icons";
 import { CountUp, SpotlightCard } from "@/components/ui/PremiumMotion";
@@ -706,6 +707,8 @@ export default function ProfilePage() {
   // Fetch detail user (enrichissement en arrière-plan)
   const loadDetail = async () => {
     if (!u?.uid) return;
+    // Élève de démo "en dur" (présentation) : fiche figée, aucun appel réseau.
+    if (u.uid === DEMO_UID) { setDetail(demoUserDetail()); setRefreshing(false); return; }
     setRefreshing(true);
     try {
       const r = await fetch(`${dashAPI}/user/${u.uid}`, { headers: { Authorization: `Bearer ${tk}` } });
@@ -1775,6 +1778,7 @@ export default function ProfilePage() {
                 )}
 
 
+                {(d.matchedJobOffers || d.personalisedOffers || []).length > 0 && (
                 <ProfCard title="Offres d'emploi matchées">
                   {(() => {
                     const offers = d.matchedJobOffers || d.personalisedOffers || [];
@@ -1819,6 +1823,7 @@ export default function ProfilePage() {
                     );
                   })()}
                 </ProfCard>
+                )}
 
                 <ProfCard title="Profil IMPAKT (RIASEC)">
                   <RiasecBars rp={rp} />
