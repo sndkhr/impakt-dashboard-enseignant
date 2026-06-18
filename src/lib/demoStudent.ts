@@ -28,7 +28,7 @@ const TOP10_TITLES = [
   'motion designer',
   'éducateur/trice de jeunes enfants',
   'illustrateur/trice',
-  'médiateur/trice culturel/le',
+  'assistant/e de service social',
   'conseiller/ère en économie sociale et familiale',
   "designer d'espace / scénographe",
 ];
@@ -42,7 +42,7 @@ const JUSTIFS: Record<string, string> = {
   demo_m5: "Animer visuels, vidéos et contenus animés : du design en mouvement, créatif et très demandé en digital.",
   demo_m6: "Accompagner l'éveil et le développement des tout-petits : un métier social, bienveillant et créatif.",
   demo_m7: "Raconter et transmettre par l'image : pour sa créativité tournée vers un public.",
-  demo_m8: "Faire le lien entre les œuvres, la culture et le public : à la fois l'art et le contact humain.",
+  demo_m8: "Accompagner et soutenir des personnes en difficulté dans leurs démarches : un métier d'aide, d'écoute et de contact.",
   demo_m9: "Accompagner les familles dans leur quotidien (budget, logement, vie sociale) : du social très concret.",
   demo_m10: "Concevoir des espaces et des décors : créativité, design et sensibilité artistique.",
 };
@@ -56,7 +56,7 @@ const HIRING: Record<string, { label: string; level: 'fort' | 'moyen' | 'faible'
   demo_m5: { label: 'Recrute', level: 'moyen' },
   demo_m6: { label: 'Recrute fortement', level: 'fort' },
   demo_m7: { label: 'Peu de postes', level: 'faible' },
-  demo_m8: { label: 'Marché concurrentiel', level: 'faible' },
+  demo_m8: { label: 'Recrute', level: 'moyen' },
   demo_m9: { label: 'Recrute', level: 'moyen' },
   demo_m10: { label: 'Peu de postes', level: 'faible' },
 };
