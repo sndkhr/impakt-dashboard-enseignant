@@ -65,9 +65,8 @@ const PROFILE_ANALYSIS =
   "Léa a un profil qui combine deux moteurs forts : la création visuelle (design, image, arts appliqués) et le lien aux autres (accompagner, transmettre, aider). Elle aime imaginer, donner forme à des idées, et le faire au service des gens. Les métiers qui lui correspondent se situent donc à ce croisement art/design + social. À ce stade, son projet n'est pas encore fixé et elle exprime le besoin d'être accompagnée pour y voir plus clair — c'est normal en terminale, et c'est le bon moment pour explorer ces pistes avec elle.";
 
 const CAREER_PATHS = [
-  { name: 'Design & création visuelle', description: "Graphisme, UX/UI, direction artistique, illustration — donner forme aux idées." },
-  { name: 'Travail social & éducatif', description: "Éducation spécialisée, petite enfance, animation, ESF — accompagner et faire grandir." },
-  { name: 'Art, culture & médiation', description: "Médiation culturelle, projets artistiques — relier l'art et les publics." },
+  { name: 'Design & création visuelle', description: "Graphisme, UX/UI, motion, illustration — donner forme aux idées par l'image." },
+  { name: 'Social & accompagnement', description: "Éducation spécialisée, petite enfance, animation — être tournée vers les autres et les aider." },
 ];
 
 const RIASEC = { R: 1, I: 3, A: 8, S: 9, E: 4, C: 2 };
