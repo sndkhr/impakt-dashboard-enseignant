@@ -51,10 +51,10 @@ const JUSTIFS: Record<string, string> = {
 const HIRING: Record<string, { label: string; level: 'fort' | 'moyen' | 'faible' }> = {
   demo_m1: { label: 'Marché concurrentiel', level: 'faible' },
   demo_m2: { label: 'Recrute fortement', level: 'fort' },
-  demo_m3: { label: 'Recrute bien', level: 'fort' },
+  demo_m3: { label: 'Recrute modérément', level: 'moyen' },
   demo_m4: { label: 'Recrute', level: 'moyen' },
   demo_m5: { label: 'Recrute', level: 'moyen' },
-  demo_m6: { label: 'Recrute', level: 'moyen' },
+  demo_m6: { label: 'Recrute fortement', level: 'fort' },
   demo_m7: { label: 'Peu de postes', level: 'faible' },
   demo_m8: { label: 'Marché concurrentiel', level: 'faible' },
   demo_m9: { label: 'Recrute', level: 'moyen' },
