@@ -1,4 +1,5 @@
 import { DashboardData, UserDetail } from '@/types';
+import { DEMO_UID, demoUserDetail, demoMotivationJournals, withDemoStudent } from './demoStudent';
 
 const API_URL = 'https://europe-west1-impakt-6c00e.cloudfunctions.net/dashboardAPI';
 // Alias exporté — utilisé par AdminUserProfile.tsx (port de la fiche admin)
@@ -22,10 +23,14 @@ export async function fetchDashboardData(token: string): Promise<DashboardData> 
     throw new Error(`Erreur serveur: ${response.status}`);
   }
 
-  return response.json();
+  // Élève de démo "en dur" (présentation) : ajoutée en tête de liste.
+  return withDemoStudent(await response.json());
 }
 
 export async function fetchUserDetail(token: string, uid: string): Promise<UserDetail> {
+  // Fiche de l'élève de démo : données figées, aucun appel réseau.
+  if (uid === DEMO_UID) return demoUserDetail();
+
   const response = await fetch(`${API_URL}/user/${uid}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
@@ -245,6 +250,12 @@ export async function listMotivationJournalsAPI(
   token: string,
   jeuneUid: string
 ): Promise<{ journals: MotivationJournalDTO[]; count: number; currentScore: number | null; lastCompletedAt: string | null }> {
+  // Journal de l'élève de démo : 6 mois figés (courbe en dents de scie).
+  if (jeuneUid === DEMO_UID) {
+    const journals = demoMotivationJournals();
+    return { journals, count: journals.length, currentScore: journals[0]?.score ?? null, lastCompletedAt: journals[0]?.createdAt ?? null };
+  }
+
   const response = await fetch(`${API_URL}/motivation/by-jeune/${jeuneUid}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
