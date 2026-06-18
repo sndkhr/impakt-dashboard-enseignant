@@ -213,6 +213,9 @@ export async function listJeuneRendezvousAPI(
   token: string,
   jeuneUid: string
 ): Promise<{ rendezvous: BackendRendezvousFull[]; count: number }> {
+  // Élève de démo : aucun RDV (état vide propre, sans appel réseau).
+  if (jeuneUid === DEMO_UID) return { rendezvous: [], count: 0 };
+
   const response = await fetch(`${API_URL}/rendezvous/by-jeune/${jeuneUid}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });

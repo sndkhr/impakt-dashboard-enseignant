@@ -143,8 +143,8 @@ function demoActivity() {
   acts.push({
     type: 'formation', action: 'pathway_results', detail: 'Éducatrice spécialisée', timestamp: isoDaysAgo(20),
     metadata: {
-      parcours_publics: [{ titre: 'Voie publique — Diplôme d\'État', etape1: 'Terminale ST2S (en cours)', etape2: 'Diplôme d\'État d\'Éducateur Spécialisé — 3 ans en IRTS', etape3: 'Premier poste : ASE, IME, foyer, MECS' }],
-      parcours_prives: [{ titre: 'Voie en alternance', etape1: 'Terminale ST2S (en cours)', etape2: 'DEES en alternance (école du travail social)', etape3: 'Insertion progressive en structure' }],
+      parcours_publics: [{ titre: 'Voie publique — Diplôme d\'État', etape1: 'Diplôme d\'État d\'Éducateur Spécialisé (DEES) — 3 ans en IRTS', etape2: 'Stages en structure pendant la formation (ASE, IME, foyer)', etape3: 'Diplôme d\'État → poste d\'éducatrice spécialisée' }],
+      parcours_prives: [{ titre: 'Voie en alternance', etape1: 'DEES en alternance (école du travail social)', etape2: 'Alternance rémunérée en structure sociale', etape3: 'Insertion progressive → poste d\'éducatrice spécialisée' }],
     },
   });
   acts.push({ type: 'screen', action: 'tab_opened', detail: 'pathway', timestamp: isoDaysAgo(22) });
@@ -173,8 +173,8 @@ function demoPathways() {
       metierTitle: 'Éducatrice spécialisée',
       savedAt: isoDaysAgo(18),
       formations: [
-        { nom: 'Bac technologique ST2S', ecole: 'Lycée', ville: 'Bobigny', duree: 'En cours' },
-        { nom: "Diplôme d'État d'Éducateur Spécialisé (DEES)", ecole: 'IRTS Île-de-France', ville: 'Montrouge', duree: '3 ans' },
+        { nom: "Diplôme d'État d'Éducateur Spécialisé (DEES)", ecole: 'IRTS Île-de-France', ville: 'Montrouge', duree: '3 ans après le bac' },
+        { nom: 'Premier poste : ASE, IME, foyer ou MECS', ecole: 'Structure médico-sociale', ville: 'Île-de-France', duree: 'Insertion' },
       ],
     },
     {

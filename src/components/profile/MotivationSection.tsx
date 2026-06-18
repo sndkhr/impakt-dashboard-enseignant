@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useMemo, useRef } from "react";
-import Chart from "chart.js/auto";
 import { listMotivationJournalsAPI, MotivationJournalDTO, MotivationAnswerDTO } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { computeEngagementScore, computeCompositeScore, EngagementBreakdown, MOTIV_PALETTE, motivLevelFromScore } from "@/lib/motivationScore";
@@ -574,8 +573,8 @@ export function MotivationTabContent({ uid, userData }: { uid: string; userData?
 // (vert / orange / rouge), tooltip date + score sur hover.
 // =====================================================
 function MotivationChart({ journals, loading }: { journals: MotivationJournalDTO[]; loading: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(560);
 
   // Trie chronologique ascendant (la liste arrive en desc du backend)
   const sorted = useMemo(() => {
@@ -584,96 +583,34 @@ function MotivationChart({ journals, loading }: { journals: MotivationJournalDTO
       .sort((a, b) => new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime());
   }, [journals]);
 
+  // Largeur réelle du conteneur → graphique SVG responsive (sans chart.js,
+  // qui ne se dessinait pas de façon fiable dans cet onglet).
   useEffect(() => {
-    if (!canvasRef.current || sorted.length === 0) return;
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) return;
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => setW(el.clientWidth || 560);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
-    const labels = sorted.map(j => {
-      const d = new Date(j.createdAt!);
-      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-    });
-    const scores = sorted.map(j => j.score);
-    const pointColors = scores.map(s => {
-      const lvl = motivLevelFromScore(s);
-      return MOTIV_PALETTE[lvl].dot;
-    });
-
-    // Gradient remplissage sous la courbe (brand)
-    const grad = ctx.createLinearGradient(0, 0, 0, 220);
-    grad.addColorStop(0, 'rgba(232,67,147,0.28)');
-    grad.addColorStop(1, 'rgba(127,73,151,0)');
-
-    if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; }
-
-    chartRef.current = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Score motivation',
-          data: scores,
-          borderColor: '#E84393',
-          backgroundColor: grad,
-          borderWidth: 2.5,
-          tension: 0.35,
-          pointRadius: 4,
-          pointBackgroundColor: pointColors,
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
-          pointHoverRadius: 7,
-          pointHoverBackgroundColor: pointColors,
-          pointHoverBorderColor: '#ffffff',
-          pointHoverBorderWidth: 3,
-          fill: true,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(15,15,15,0.92)',
-            titleColor: '#ffffff', bodyColor: 'rgba(255,255,255,0.85)',
-            titleFont: { family: 'Plus Jakarta Sans', size: 11, weight: 700 },
-            bodyFont: { family: 'Plus Jakarta Sans', size: 11 },
-            padding: 10, cornerRadius: 8, displayColors: false,
-            borderColor: 'rgba(232,67,147,0.3)', borderWidth: 1,
-            callbacks: {
-              label: (ctx) => `Motivation : ${ctx.parsed.y}/100`,
-            },
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              color: '#a3a3a3',
-              font: { family: 'Plus Jakarta Sans', size: 10 },
-              maxRotation: 0,
-              autoSkipPadding: 12,
-            },
-            border: { display: false },
-          },
-          y: {
-            min: 0, max: 100,
-            grid: { color: 'rgba(15,15,15,0.05)' },
-            ticks: {
-              color: '#a3a3a3',
-              font: { family: 'Plus Jakarta Sans', size: 10 },
-              stepSize: 25,
-              callback: (v) => `${v}`,
-            },
-            border: { display: false },
-          },
-        },
-      },
-    });
-
-    return () => { if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; } };
-  }, [sorted]);
+  // Géométrie du tracé (repère px, ratio 1:1 → cercles ronds, texte net)
+  const H = 220, padL = 28, padR = 14, padT = 12, padB = 26;
+  const plotW = Math.max(10, w - padL - padR);
+  const plotH = H - padT - padB;
+  const n = sorted.length;
+  const xAt = (i: number) => (n <= 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW);
+  const yAt = (s: number) => padT + (1 - Math.max(0, Math.min(100, s)) / 100) * plotH;
+  const pts = sorted.map((j, i) => ({
+    x: xAt(i), y: yAt(j.score), lvl: motivLevelFromScore(j.score), d: new Date(j.createdAt!),
+  }));
+  const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const baseline = (padT + plotH).toFixed(1);
+  const areaPath = pts.length ? `${linePath} L${pts[pts.length - 1].x.toFixed(1)},${baseline} L${pts[0].x.toFixed(1)},${baseline} Z` : '';
+  const gridVals = [0, 25, 50, 75, 100];
+  const labelIdx = n <= 1 ? [0] : n <= 4 ? pts.map((_, i) => i) : [0, Math.floor((n - 1) / 2), n - 1];
+  const fmtAxis = (d: Date) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 
   return (
     <div style={{
@@ -689,7 +626,7 @@ function MotivationChart({ journals, loading }: { journals: MotivationJournalDTO
         <div>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--premium-text)', letterSpacing: '-0.2px' }}>Évolution de la motivation</div>
           <div style={{ fontSize: 10.5, color: 'var(--premium-text-4)', marginTop: 2 }}>
-            {sorted.length === 0 ? 'Aucune donnée' : `${sorted.length} journal${sorted.length > 1 ? 'aux' : ''} renseigné${sorted.length > 1 ? 's' : ''}`}
+            {sorted.length === 0 ? 'Aucune donnée' : `${sorted.length} journa${sorted.length > 1 ? 'ux' : 'l'} renseigné${sorted.length > 1 ? 's' : ''}`}
           </div>
         </div>
         {sorted.length > 0 && (
@@ -706,7 +643,7 @@ function MotivationChart({ journals, loading }: { journals: MotivationJournalDTO
           </div>
         )}
       </div>
-      <div style={{ position: 'relative', height: 220 }}>
+      <div ref={wrapRef} style={{ position: 'relative', height: 220 }}>
         {loading ? (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--premium-text-4)', fontSize: 12 }}>
             Chargement…
@@ -716,7 +653,31 @@ function MotivationChart({ journals, loading }: { journals: MotivationJournalDTO
             Pas encore de journal motivation rempli — le graphique apparaîtra dès la première semaine.
           </div>
         ) : (
-          <canvas ref={canvasRef} />
+          <svg width={w} height={H} style={{ display: 'block' }}>
+            <defs>
+              <linearGradient id="motivAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(232,67,147,0.28)" />
+                <stop offset="100%" stopColor="rgba(127,73,151,0)" />
+              </linearGradient>
+            </defs>
+            {gridVals.map(g => {
+              const gy = yAt(g);
+              return (
+                <g key={g}>
+                  <line x1={padL} y1={gy} x2={w - padR} y2={gy} stroke="rgba(15,15,15,0.06)" strokeWidth={1} />
+                  <text x={padL - 6} y={gy + 3} textAnchor="end" fontSize={9} fill="#a3a3a3">{g}</text>
+                </g>
+              );
+            })}
+            {areaPath && <path d={areaPath} fill="url(#motivAreaGrad)" />}
+            {linePath && <path d={linePath} fill="none" stroke="#E84393" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />}
+            {pts.map((p, i) => (
+              <circle key={i} cx={p.x} cy={p.y} r={3.5} fill={MOTIV_PALETTE[p.lvl].dot} stroke="#ffffff" strokeWidth={2} />
+            ))}
+            {labelIdx.map(i => (
+              <text key={i} x={xAt(i)} y={H - 8} textAnchor={i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'} fontSize={9} fill="#a3a3a3">{fmtAxis(pts[i].d)}</text>
+            ))}
+          </svg>
         )}
       </div>
     </div>

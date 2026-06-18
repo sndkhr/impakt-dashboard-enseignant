@@ -8,6 +8,8 @@ import {
   BackendRendezvousFull,
 } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
+import InviteRdvModal from '@/components/modals/InviteRdvModal';
+import { User } from '@/types';
 
 // =====================================================
 // RdvTab v1.0 — Onglet "Rendez-vous" de la fiche jeune
@@ -23,6 +25,7 @@ import { useToast } from '@/components/ui/Toast';
 interface Props {
   jeuneUid: string;
   jeunePrenom: string;
+  jeune?: User;
 }
 
 function statusBadge(s: string) {
@@ -44,13 +47,19 @@ function formatDate(iso: string | null): string {
   });
 }
 
-export default function RdvTab({ jeuneUid, jeunePrenom }: Props) {
+export default function RdvTab({ jeuneUid, jeunePrenom, jeune }: Props) {
   const { token } = useAuth();
   const toast = useToast();
   const [rdvs, setRdvs] = useState<BackendRendezvousFull[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+
+  // Candidat pour le modal "Prendre RDV" (le jeune de la fiche).
+  const inviteCandidates: User[] = jeune
+    ? [jeune]
+    : (jeuneUid ? [{ uid: jeuneUid, prenom: jeunePrenom, nom: '' } as User] : []);
 
   // Form state pour notes/questions/date/lieu (par RDV en cours d'édition)
   const [draftNotes, setDraftNotes] = useState('');
@@ -158,17 +167,37 @@ export default function RdvTab({ jeuneUid, jeunePrenom }: Props) {
   );
 
   if (rdvs.length === 0) return (
-    <div style={{
-      padding: '48px 24px', textAlign: 'center', borderRadius: 14,
-      background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.7)',
-    }}>
-      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--premium-text)', marginBottom: 6 }}>
-        Aucun rendez-vous pour {jeunePrenom}
+    <>
+      <div style={{
+        padding: '48px 24px', textAlign: 'center', borderRadius: 14,
+        background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.7)',
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--premium-text)', marginBottom: 6 }}>
+          Aucun RDV
+        </div>
+        <div style={{ fontSize: 12.5, color: 'var(--premium-text-4)', marginBottom: 18 }}>
+          {jeunePrenom ? `${jeunePrenom} n'a pas encore de rendez-vous.` : "Aucun rendez-vous pour l'instant."}
+        </div>
+        <button
+          onClick={() => setInviteOpen(true)}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '11px 20px', borderRadius: 11, border: 'none',
+            background: 'linear-gradient(135deg, #7f4997, #E84393)',
+            color: '#fff', fontSize: 13.5, fontWeight: 700, fontFamily: 'inherit',
+            cursor: 'pointer', boxShadow: '0 4px 14px rgba(232,67,147,0.30), inset 0 1px 0 rgba(255,255,255,0.4)',
+          }}
+        >
+          + Prendre RDV
+        </button>
       </div>
-      <div style={{ fontSize: 12.5, color: 'var(--premium-text-4)' }}>
-        Planifie un RDV depuis la page « Rendez-vous » ou depuis cette fiche.
-      </div>
-    </div>
+      <InviteRdvModal
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        candidates={inviteCandidates}
+        onScheduled={() => { setInviteOpen(false); fetchRdvs(); }}
+      />
+    </>
   );
 
   return (

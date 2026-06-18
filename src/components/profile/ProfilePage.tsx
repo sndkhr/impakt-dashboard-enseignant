@@ -2793,7 +2793,7 @@ export default function ProfilePage() {
           {/* ============ TAB: RDV (vue conseiller — composant existant) ============ */}
           {tab === 'rdv' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <RdvTab />
+              <RdvTab jeuneUid={d.uid} jeunePrenom={d.prenom} jeune={d} />
             </div>
           )}
 
