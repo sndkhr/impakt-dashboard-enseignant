@@ -72,7 +72,7 @@ export function demoListUser(): User {
   return {
     uid: DEMO_UID,
     prenom: 'Léa',
-    nom: 'Martin',
+    nom: 'Lefèvre',
     age: 17,
     ville: 'Lyon',
     situation: 'lyceen',
