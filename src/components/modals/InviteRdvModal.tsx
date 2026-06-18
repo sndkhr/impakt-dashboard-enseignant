@@ -115,8 +115,8 @@ export default function InviteRdvModal({ open, onClose, candidates, onScheduled 
 
       const locationLabel = type === 'tel'
         ? 'Appel téléphonique'
-        : (location.trim() || 'Agence France Travail');
-      const objetLabel = note.trim() || (type === 'tel' ? 'Appel de suivi' : 'Rendez-vous de suivi');
+        : (location.trim() || 'Au lycée');
+      const objetLabel = note.trim() || (type === 'tel' ? 'Échange téléphonique' : "Rendez-vous d'orientation");
 
       const result = await createRendezvousAPI(token, {
         jeuneUid: schedulingUser.uid,
@@ -181,7 +181,7 @@ export default function InviteRdvModal({ open, onClose, candidates, onScheduled 
             </div>
             {!schedulingUser && (
               <div style={{ fontSize: 11.5, color: 'var(--premium-text-4)', marginTop: 3 }}>
-                {candidates.length} bénéficiaire{candidates.length > 1 ? 's' : ''} ont terminé leur test · {scheduledCount} déjà planifié{scheduledCount > 1 ? 's' : ''}
+                {candidates.length} élève{candidates.length > 1 ? 's' : ''} ont terminé leur test · {scheduledCount} déjà planifié{scheduledCount > 1 ? 's' : ''}
               </div>
             )}
           </div>
@@ -200,7 +200,7 @@ export default function InviteRdvModal({ open, onClose, candidates, onScheduled 
           <div style={{ padding: 14, maxHeight: '60vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
             {candidates.length === 0 && (
               <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--premium-text-4)', fontSize: 13 }}>
-                Aucun bénéficiaire à inviter pour le moment
+                Aucun élève à inviter pour le moment
               </div>
             )}
             {sortedCandidates.map((u) => {
@@ -331,7 +331,7 @@ export default function InviteRdvModal({ open, onClose, candidates, onScheduled 
               <div>
                 <label style={labelStyle}>Lieu</label>
                 <input type="text" value={location} onChange={e => setLocation(e.target.value)}
-                  placeholder="Ex : Agence France Travail Paris 15 - 20 rue de la Paix"
+                  placeholder="Ex : au lycée, salle B12 (ou au CDI)"
                   style={inputStyle} />
               </div>
             )}

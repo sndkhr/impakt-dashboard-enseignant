@@ -123,7 +123,7 @@ const RDV_TYPES: RdvType[] = [
 
 // Lieux avec majuscule à l'affichage (mapping label propre)
 const LOCATION_LABELS: { value: RdvLocation; label: string }[] = [
-  { value: 'en agence',          label: 'En agence' },
+  { value: 'au lycée',          label: 'Au lycée' },
   { value: 'en visio',           label: 'En visio' },
   { value: 'au téléphone',       label: 'Au téléphone' },
   { value: 'sur site partenaire', label: 'Sur site partenaire' },
@@ -142,7 +142,7 @@ export function ExchangeModal({ open, onClose, users }: {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('10:00');
   const [rdvType, setRdvType] = useState<RdvType>('Suivi');
-  const [location, setLocation] = useState<RdvLocation>('en agence');
+  const [location, setLocation] = useState<RdvLocation>('au lycée');
   const [note, setNote] = useState('');
   const [search, setSearch] = useState('');
 
@@ -158,7 +158,7 @@ export function ExchangeModal({ open, onClose, users }: {
         // Map le label du lieu vers la valeur ENUM
         const locValue = LOCATION_LABELS.find(l => l.label.toLowerCase() === (editingRdv.location || '').toLowerCase())?.value
                       || LOCATION_LABELS.find(l => l.value.toLowerCase() === (editingRdv.location || '').toLowerCase())?.value
-                      || 'en agence';
+                      || 'au lycée';
         setLocation(locValue);
         setNote(editingRdv.notes || '');
         setSelectedUid(editingRdv.jeuneUid || '');
@@ -167,7 +167,7 @@ export function ExchangeModal({ open, onClose, users }: {
         const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
         setDate(tmr.toISOString().split('T')[0]);
         setRdvType('Suivi');
-        setLocation('en agence');
+        setLocation('au lycée');
         setTime('10:00');
         setNote('');
         setSearch('');

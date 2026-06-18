@@ -31,7 +31,7 @@ export type RdvType =
   | 'Atelier réseau'
   | 'Téléphone';
 
-export type RdvLocation = 'en agence' | 'en visio' | 'au téléphone' | 'sur site partenaire';
+export type RdvLocation = 'au lycée' | 'en visio' | 'au téléphone' | 'sur site partenaire' | 'en agence';
 
 export type RdvStatus =
   | 'upcoming'    // a venir
@@ -82,10 +82,10 @@ function readStore(): Record<string, ScheduledRdv> {
           beneficiaireName: '',
           at,
           durationMin: r.type === 'tel' ? 30 : 60,
-          type: r.type === 'tel' ? 'Téléphone' : 'Suivi mensuel',
-          location: r.type === 'tel' ? 'au téléphone' : 'en agence',
+          type: r.type === 'tel' ? 'Téléphone' : 'Suivi',
+          location: r.type === 'tel' ? 'au téléphone' : 'au lycée',
           scheduledAt: r.scheduledAt,
-          scheduledBy: 'conseiller',
+          scheduledBy: 'enseignant',
           attended: null,
         };
       });
@@ -140,7 +140,7 @@ export function addRdv(input: Omit<ScheduledRdv, 'id' | 'scheduledAt' | 'schedul
     ...input,
     id,
     scheduledAt: new Date().toISOString(),
-    scheduledBy: 'conseiller',
+    scheduledBy: 'enseignant',
     attended: input.attended ?? null,
   };
   store[id] = rdv;
