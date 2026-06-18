@@ -243,7 +243,10 @@ function buildCandidateSummary(d: any): string {
   if (ageStr) identity += `, ${ageStr}`;
   if (diploma) {
     const lower = diploma.toLowerCase();
-    if (lower.startsWith('niveau')) identity += `, ${lower}`;
+    // Élève encore scolarisé → "actuellement en <classe>" (pas "titulaire d'un …").
+    const isStudent = d.situation === 'lyceen' || d.situation === 'collegien' || d.situation === 'etudiant';
+    if (isStudent) identity += `, actuellement en ${d.classe || diploma}`;
+    else if (lower.startsWith('niveau')) identity += `, ${lower}`;
     else identity += `, titulaire d'un ${diploma}`;
   }
   out.push(identity + '.');
@@ -401,6 +404,8 @@ function MetiersList({ metiers, limit, llm }) {
         const justif = useLLM && metierID ? (llm.justifications || {})[metierID] : null;
         const rankJustif = useLLM && metierID ? (llm.rankJustifications || {})[metierID] : null;
         const chemin = useLLM && metierID ? (llm.careerPathByCareerID || {})[metierID] : null;
+        const hiring = useLLM && metierID ? (llm.hiringByCareerID || {})[metierID] : null;
+        const hiringColor = hiring ? (hiring.level === 'fort' ? '#047857' : hiring.level === 'moyen' ? '#0e9f6e' : '#9ca3af') : '';
         const hasExtra = useLLM && (justif || rankJustif || chemin);
         const isExpanded = !!expanded[i];
 
@@ -412,7 +417,15 @@ function MetiersList({ metiers, limit, llm }) {
               style={{ width: '100%', padding: '10px 0', background: 'transparent', border: 'none', fontFamily: 'inherit', cursor: hasExtra ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left' }}
             >
               <div style={{ width: 22, height: 22, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0, background: i === 0 ? G : i === 1 ? '#1a1a2e' : i === 2 ? '#374151' : '#f3f4f6', color: i < 3 ? '#fff' : V.t4 }}>{i + 1}</div>
-              <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: V.t7 }}>{name}</span>
+              <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: V.t7 }}>{name}</span>
+                {hiring && (
+                  <span style={{ fontSize: 10, fontWeight: 600, color: hiringColor, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: hiringColor, display: 'inline-block' }} />
+                    {hiring.label}
+                  </span>
+                )}
+              </span>
               <span style={chevronSlot}>{hasExtra && <Chevron open={isExpanded} color={V.t4} />}</span>
             </button>
             {hasExtra && isExpanded && (
