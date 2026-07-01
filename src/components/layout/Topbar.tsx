@@ -142,6 +142,7 @@ export default function Topbar() {
           color: 'var(--premium-text)',
           margin: 0, lineHeight: 1.15,
           letterSpacing: '-0.02em',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>{pageInfo.title}</h1>
         {pageInfo.subtitle && (
           <p style={{
@@ -150,6 +151,7 @@ export default function Topbar() {
             fontFamily: 'var(--font-display)',
             fontWeight: 450,
             letterSpacing: '-0.005em',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>{pageInfo.subtitle}</p>
         )}
       </div>
@@ -160,7 +162,7 @@ export default function Topbar() {
           onClick={() => openPalette()}
           style={{
             position: 'relative',
-            width: 280, padding: '10px 52px 10px 36px',
+            flex: '0 1 280px', minWidth: 150, padding: '10px 52px 10px 36px',
             background: 'rgba(255,255,255,0.55)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
@@ -196,7 +198,7 @@ export default function Topbar() {
 
         {/* === Actualiser === */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span key={tick} style={{ fontSize: 10.5, color: 'var(--premium-text-4)', fontWeight: 500, fontFamily: 'var(--font-display)', whiteSpace: 'nowrap' }}>
+          <span key={tick} className="topbar-updated" style={{ fontSize: 10.5, color: 'var(--premium-text-4)', fontWeight: 500, fontFamily: 'var(--font-display)', whiteSpace: 'nowrap' }}>
             Mis à jour {formatLastRefresh(lastRefresh)}
           </span>
           <button onClick={handleRefresh} title="Actualiser les données"

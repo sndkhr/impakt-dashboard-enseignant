@@ -44,6 +44,8 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { overflow-x: hidden; }
+/* Topbar : masque l'horodatage "Mis à jour" en fenêtre étroite (évite le chevauchement titre/recherche) */
+@media (max-width: 1200px){ .topbar-updated{ display:none; } }
 
 /* === Aurora background multi-stops (IDENTIQUE au dashboard admin) === */
 body {
