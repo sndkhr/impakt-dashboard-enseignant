@@ -417,6 +417,8 @@ function MetiersList({ metiers, limit, llm }) {
         const justif = useLLM && metierID ? (llm.justifications || {})[metierID] : null;
         const rankJustif = useLLM && metierID ? (llm.rankJustifications || {})[metierID] : null;
         const chemin = useLLM && metierID ? (llm.careerPathByCareerID || {})[metierID] : null;
+        // v18.6 — Signaux matchés (ce que le jeune a coché) — visible conseiller uniquement
+        const signals = useLLM && metierID ? (llm.matchSignals || {})[metierID] : null;
         const hiring = useLLM && metierID ? (llm.hiringByCareerID || {})[metierID] : null;
         const hiringColor = hiring ? (hiring.level === 'fort' ? '#047857' : hiring.level === 'moyen' ? '#0e9f6e' : '#9ca3af') : '';
         const hasExtra = useLLM && (justif || rankJustif || chemin);
@@ -436,6 +438,14 @@ function MetiersList({ metiers, limit, llm }) {
                   <span style={{ fontSize: 10, fontWeight: 600, color: hiringColor, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: hiringColor, display: 'inline-block' }} />
                     {hiring.label}
+                  </span>
+                )}
+                {Array.isArray(signals) && signals.length > 0 && (
+                  <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                    <span style={{ fontSize: 8.5, fontWeight: 700, color: V.t4, textTransform: 'uppercase', letterSpacing: .3 }}>matché sur</span>
+                    {signals.map((s, k) => (
+                      <span key={k} style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(142,68,173,0.10)', color: V.accent }}>{s}</span>
+                    ))}
                   </span>
                 )}
               </span>
