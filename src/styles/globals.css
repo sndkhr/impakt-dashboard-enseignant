@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* v18.6 — Empêche les enfants d'une grille de déborder : les colonnes se serrent
+   au lieu de couper le contenu (fix « Priorités du jour » : 3e colonne coupée). */
+[style*="grid-template-columns"] > * { min-width: 0; }
+
 :root {
   --bg: #f4f5f9;
   --bg2: #ffffff;
