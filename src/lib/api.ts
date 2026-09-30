@@ -450,6 +450,24 @@ export interface BackendMessage {
   mediaName?: string | null;
 }
 
+// Coûts 30/09 — pastilles du dashboard en quelques comptages côté serveur (au lieu de relire les listes toutes les 10-15 s)
+export interface Badges {
+  notifUnread: number | null;
+  notifUnreadRdv: number | null;
+  notifUnreadFormation: number | null;
+  notifUnreadAutres: number | null;
+  convUnreadTotal: number | null;
+  formationPending: number | null;
+}
+export async function fetchBadgesAPI(token: string): Promise<Badges> {
+  const response = await fetch(`${API_URL}/badges`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (response.status === 403) throw new Error('UNAUTHORIZED');
+  if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+  return response.json();
+}
+
 export async function listConversationsAPI(token: string): Promise<{ conversations: BackendConversation[]; unreadTotal: number }> {
   const response = await fetch(`${API_URL}/conversations`, {
     headers: { 'Authorization': `Bearer ${token}` },
@@ -463,7 +481,8 @@ export async function listMessagesAPI(
   token: string,
   conversationId: string
 ): Promise<{ messages: BackendMessage[]; conversation: { id: string; jeuneUid: string | null; jeuneName: string | null; conseillerName: string | null; unreadByConseiller: number } }> {
-  const response = await fetch(`${API_URL}/conversations/${encodeURIComponent(conversationId)}/messages`, {
+  // Coûts 30/09 : les 50 derniers messages suffisent à l'affichage (avant : 100 lus à chaque rafraîchissement)
+  const response = await fetch(`${API_URL}/conversations/${encodeURIComponent(conversationId)}/messages?limit=50`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
   if (response.status === 403) throw new Error('UNAUTHORIZED');

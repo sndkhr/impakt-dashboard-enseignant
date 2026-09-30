@@ -2,7 +2,7 @@
 
 import { useNav, PageId } from '@/lib/navigation';
 import { useAuth } from '@/lib/auth';
-import { useConversations } from '@/lib/useBackendRdvs';
+import { useBadges } from '@/lib/useBackendRdvs';
 
 interface NavItem {
   id: PageId;
@@ -67,7 +67,10 @@ const icons = {
 export default function Sidebar({ rdvBadge }: { rdvBadge?: number }) {
   const { currentPage, navigate } = useNav();
   const { logout, data } = useAuth();
-  const { unreadTotal: unreadMessages } = useConversations();
+  // Coûts 30/09 : la pastille vient d'un seul appel léger (/badges) toutes les 60 s, au lieu de recharger la liste des
+  // conversations toutes les 10 s sur toutes les pages
+  const { badges } = useBadges();
+  const unreadMessages = badges?.convUnreadTotal ?? 0;
 
   const mainNav: NavItem[] = [
     { id: 'home', label: 'Accueil', icon: icons.home },
